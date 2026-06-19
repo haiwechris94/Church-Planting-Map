@@ -1,0 +1,8 @@
+$kind: http-request
+name: Delete People Group
+method: DELETE
+url: '{{baseUrl}}/api/people-groups/{{peopleGroupId}}'
+order: 9000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'

@@ -1,0 +1,41 @@
+$kind: http-request
+name: Get All People Groups
+method: GET
+url: '{{baseUrl}}/api/people-groups'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: status
+    value: pioneer
+    description: 'DMM status: pioneer, mid-journey, tipping-point, movement'
+    disabled: true
+  - key: country
+    value: CM
+    disabled: true
+  - key: region
+    value: ''
+    disabled: true
+  - key: approved
+    value: 'true'
+    disabled: true
+  - key: page
+    value: '1'
+    disabled: true
+  - key: limit
+    value: '50'
+    disabled: true
+  - key: mode
+    value: points
+    description: 'Clustering mode: points, polygon, full'
+    disabled: true
+  - key: zoom
+    value: '8'
+    description: Map zoom level for polygon simplification
+    disabled: true
+  - key: bbox
+    value: '8.4944,1.6559,16.1921,13.0833'
+    description: 'Viewport bounding box: west,south,east,north'
+    disabled: true

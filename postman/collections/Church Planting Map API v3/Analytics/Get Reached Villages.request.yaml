@@ -1,0 +1,15 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/analytics/reached-villages'
+order: 11000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: country
+    value: '{{countryCode}}'
+    disabled: true
+  - key: region
+    value: ''
+    disabled: true

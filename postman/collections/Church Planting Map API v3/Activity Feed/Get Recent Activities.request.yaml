@@ -1,0 +1,8 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/activity/recent'
+order: 1000
+queryParams:
+  - key: limit
+    value: '8'
+    disabled: true

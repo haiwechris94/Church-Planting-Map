@@ -1,0 +1,9 @@
+$kind: http-request
+url: "{{baseUrl}}/api/export/excel?includeVillages=true&includePeopleGroups=true"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  includeVillages: "true"
+  includePeopleGroups: "true"
+order: 3000

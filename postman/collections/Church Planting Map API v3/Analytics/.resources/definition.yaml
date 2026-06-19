@@ -1,0 +1,4 @@
+$kind: collection
+name: Analytics
+description: Statistics, heatmaps, timeline data, and AI-generated insights.
+order: 5000

@@ -1,0 +1,15 @@
+$kind: http-request
+name: Get Pending Approvals
+method: GET
+url: '{{baseUrl}}/api/people-groups/pending'
+order: 5000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+queryParams:
+  - key: page
+    value: '1'
+    disabled: true
+  - key: limit
+    value: '20'
+    disabled: true

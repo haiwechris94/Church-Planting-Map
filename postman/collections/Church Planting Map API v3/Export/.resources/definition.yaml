@@ -1,0 +1,4 @@
+$kind: collection
+name: Export
+description: 'Export data as GeoJSON, KML, or Excel.'
+order: 6000

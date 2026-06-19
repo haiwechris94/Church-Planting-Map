@@ -1,0 +1,15 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/analytics/activity'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+queryParams:
+  - key: period
+    value: '30'
+    description: Number of days to look back
+    disabled: true
+  - key: country
+    value: '{{countryCode}}'
+    disabled: true

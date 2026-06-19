@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{baseUrl}}/api/organizations"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Test Mission Organization",
+      "description": "A test organization for church planting",
+      "contact": {
+        "email": "contact@testorg.com",
+        "phone": "+1234567890",
+        "website": "https://testorg.com"
+      },
+      "settings": {
+        "requireApproval": true,
+        "allowGuestView": true
+      },
+      "focusArea": {
+        "regions": ["Northeast", "Southeast"],
+        "countries": ["USA"]
+      }
+    }
+order: 3000

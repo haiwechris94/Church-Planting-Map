@@ -1,0 +1,14 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/export/all'
+order: 6000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+queryParams:
+  - key: format
+    value: json
+    description: 'Output format: json, csv, geojson'
+  - key: country
+    value: '{{countryCode}}'
+    disabled: true

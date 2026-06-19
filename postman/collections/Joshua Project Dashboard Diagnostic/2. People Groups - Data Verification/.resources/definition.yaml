@@ -1,0 +1,7 @@
+$kind: collection
+name: 2. People Groups - Data Verification
+description: |-
+  Verify that Joshua Project people groups actually exist in the database and
+  check their approval status. Use these requests to confirm data is present
+  before investigating the dashboard filter logic.
+order: 2000

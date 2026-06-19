@@ -1,0 +1,8 @@
+name,villageName,population,numberOfChurches,churchGenerations,latitude,longitude,region,notes
+Peuple Alpha,Village Nord,5000,15,2,12.345,-1.234,Nord,Statut PIONEER - Niveau I
+Peuple Beta,Village Sud,3000,0,0,11.111,-2.222,Sud,NON_ATTEINT - Aucune église
+Peuple Gamma,Village Est,8000,120,8,13.456,-3.456,Est,Mouvement DMM - Niveau IV
+Peuple Delta,Village Ouest,4500,50,4,10.789,-4.567,Ouest,Statut MIDWAY - Niveau II
+Peuple Epsilon,Village Centre,6000,85,6,12.000,-3.000,Centre,Statut TIPPING_POINT - Niveau III
+Peuple Zeta,Village Montagne,2500,5,1,13.111,-2.333,Nord,Statut PIONEER - Niveau I
+Peuple Eta,Village Rivière,7500,100,7,11.555,-1.888,Sud,Statut DMM - Niveau IV

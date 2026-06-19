@@ -1,0 +1,21 @@
+$kind: http-request
+name: Get Nearby People Groups
+method: GET
+url: '{{baseUrl}}/api/people-groups/nearby'
+order: 6000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: lat
+    value: '4.0511'
+  - key: lng
+    value: '9.7679'
+  - key: radius
+    value: '50'
+    description: Radius in kilometers
+    disabled: true
+  - key: limit
+    value: '10'
+    disabled: true

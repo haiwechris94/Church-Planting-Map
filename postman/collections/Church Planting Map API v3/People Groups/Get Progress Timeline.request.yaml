@@ -1,0 +1,9 @@
+$kind: http-request
+name: Get Progress Timeline
+method: GET
+url: '{{baseUrl}}/api/people-groups/{{peopleGroupId}}/progress'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true

@@ -1,0 +1,7 @@
+$kind: collection
+name: 1. Dashboard Endpoints
+description: |-
+  Compare dashboard KPI and people-group responses with and without the
+  `includeJoshuaProject=true` flag to confirm whether the parameter controls
+  Joshua Project visibility.
+order: 1000

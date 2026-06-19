@@ -1,0 +1,13 @@
+$kind: http-request
+name: 'Get All Users (Admin)'
+method: GET
+url: '{{baseUrl}}/api/auth/users'
+order: 8000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+queryParams:
+  - key: page
+    value: '1'
+  - key: limit
+    value: '20'

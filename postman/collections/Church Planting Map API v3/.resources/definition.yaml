@@ -1,0 +1,57 @@
+$kind: collection
+name: Church Planting Map API v3
+description: |-
+  Complete API collection for the Church Planting Map application.
+  Covers all 24 route modules discovered in backend/routes/.
+
+  Base URL: {{baseUrl}} (default: http://localhost:5000)
+  Auth: Bearer {{token}} — obtain a token via POST /api/auth/login
+
+variables:
+  - key: baseUrl
+    value: 'http://localhost:5000'
+  - key: token
+    value: ''
+    description: JWT token obtained from /api/auth/login
+  - key: userId
+    value: ''
+    description: MongoDB ObjectId of a user
+  - key: villageId
+    value: ''
+    description: MongoDB ObjectId of a village
+  - key: peopleGroupId
+    value: ''
+    description: MongoDB ObjectId of a people group
+  - key: organizationId
+    value: ''
+    description: MongoDB ObjectId of an organization
+  - key: activityId
+    value: ''
+    description: MongoDB ObjectId of an activity
+  - key: notificationId
+    value: ''
+    description: MongoDB ObjectId of a notification
+  - key: analysisId
+    value: ''
+    description: MongoDB ObjectId of a qualitative analysis
+  - key: countryCode
+    value: CM
+    description: 'ISO 3166-1 alpha-2 country code (e.g. CM, TD, CF)'
+  - key: countryCode3
+    value: CMR
+    description: 'ISO 3166-1 alpha-3 country code (e.g. CMR, TCD, CAF)'
+  - key: voronoiId
+    value: villages-voronoi
+    description: Voronoi diagram ID
+  - key: jobId
+    value: ''
+    description: OSM extraction job ID
+  - key: orgSlug
+    value: my-organization
+    description: Organization slug
+  - key: inviteToken
+    value: ''
+    description: Organization invitation token
+  - key: resetToken
+    value: ''
+    description: Password reset token

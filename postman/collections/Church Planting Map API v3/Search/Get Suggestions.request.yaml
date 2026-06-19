@@ -1,0 +1,17 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/search/suggestions'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: q
+    value: Yao
+    description: Partial query for autocomplete
+  - key: type
+    value: all
+    disabled: true
+  - key: limit
+    value: '10'

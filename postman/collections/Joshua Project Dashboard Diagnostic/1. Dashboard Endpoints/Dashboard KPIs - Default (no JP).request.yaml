@@ -1,0 +1,32 @@
+$kind: http-request
+name: Dashboard KPIs - Default (no JP)
+method: GET
+url: '{{baseUrl}}/api/dashboard'
+order: 1000
+description: |-
+  Fetch dashboard KPIs using the **default** parameters (no `includeJoshuaProject` flag).
+  Compare the `totalPeopleGroups` count with the result from the next request.
+  If the counts differ, the flag is controlling JP visibility.
+headers:
+  - key: Authorization
+    value: 'Bearer {{authToken}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response has dashboard data", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.be.an("object");
+      });
+
+      // Store the default total for comparison
+      const json = pm.response.json();
+      const total = json.totalPeopleGroups ?? json.data?.totalPeopleGroups ?? null;
+      if (total !== null) {
+          pm.collectionVariables.set("defaultDashboardTotal", String(total));
+          console.log("Default totalPeopleGroups:", total);
+      }

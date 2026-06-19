@@ -1,0 +1,51 @@
+$kind: http-request
+name: 'Get AI Summary'
+url: '{{baseUrl}}/api/analytics/ai-summary'
+method: GET
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+order: 8000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      // Test 1: Status is 200 (even when AI is unavailable, fallback should return 200)
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      // Test 2: Response has required fields
+      pm.test("Response has insights array", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("insights").that.is.an("array");
+      });
+
+      pm.test("Response has alerts array", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("alerts").that.is.an("array");
+      });
+
+      pm.test("Response has recommendations array", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("recommendations").that.is.an("array");
+      });
+
+      // Test 3: aiPowered flag is present
+      pm.test("Response has aiPowered flag", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("aiPowered");
+      });
+
+      // Test 4: Log whether AI or fallback was used
+      pm.test("Log AI vs fallback mode", function () {
+        const json = pm.response.json();
+        const mode = json.aiPowered ? "✅ AI-powered response" : "⚠️ Static fallback response";
+        console.log(mode);
+        pm.expect(true).to.be.true; // always pass — informational only
+      });
+
+      // Test 5: Response time under 90 seconds
+      pm.test("Response time under 90s", function () {
+        pm.expect(pm.response.responseTime).to.be.below(90000);
+      });

@@ -1,0 +1,23 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/search'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: q
+    value: Yaoundé
+    description: Search query string
+  - key: type
+    value: all
+    description: 'Filter by type: all, village, people_group, organization'
+    disabled: true
+  - key: country
+    value: '{{countryCode}}'
+    disabled: true
+  - key: page
+    value: '1'
+  - key: limit
+    value: '20'

@@ -1,0 +1,24 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/search/proximity'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: q
+    value: Yaoundé
+  - key: lat
+    value: '3.848'
+  - key: lng
+    value: '11.502'
+  - key: radius
+    value: '100'
+    description: Radius in km
+  - key: fuzzy
+    value: 'true'
+    description: Enable fuzzy matching
+    disabled: true
+  - key: limit
+    value: '20'

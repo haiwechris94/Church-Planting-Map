@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/api/notifications/:id/read"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+pathVariables:
+  id: ""
+order: 3000

@@ -1,0 +1,18 @@
+$kind: http-request
+name: Update Village
+method: PUT
+url: '{{baseUrl}}/api/villages/{{villageId}}'
+order: 6000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "status": "mid-journey",
+      "population": 1800,
+      "description": "Updated village description"
+    }

@@ -1,0 +1,11 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/analytics/ai-summary'
+order: 8000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+queryParams:
+  - key: country
+    value: '{{countryCode}}'
+    disabled: true

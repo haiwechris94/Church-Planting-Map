@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{baseUrl}}/api/search/nearby?lng=-73.935242&lat=40.730610&radius=10000&t\
+  ype=all"
+method: GET
+queryParams:
+  lng: "-73.935242"
+  lat: "40.730610"
+  radius: "10000"
+  type: all
+order: 3000

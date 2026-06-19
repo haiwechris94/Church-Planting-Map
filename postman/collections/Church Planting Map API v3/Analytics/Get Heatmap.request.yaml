@@ -1,0 +1,20 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/analytics/heatmap'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: country
+    value: '{{countryCode}}'
+    disabled: true
+  - key: metric
+    value: population
+    description: 'Metric to visualize: population, churches, engagement'
+    disabled: true
+  - key: level
+    value: '1'
+    description: Admin level (1=region, 2=department, 3=subdivision)
+    disabled: true

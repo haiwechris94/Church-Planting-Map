@@ -1,0 +1,26 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/dashboard/hierarchical-data'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: level
+    value: region
+    description: 'Hierarchy level: country, region, department, district, village'
+  - key: parent
+    value: ''
+    description: Parent name for filtering
+    disabled: true
+  - key: page
+    value: '1'
+  - key: limit
+    value: '20'
+  - key: sortBy
+    value: name
+    disabled: true
+  - key: sortOrder
+    value: asc
+    disabled: true

@@ -1,0 +1,34 @@
+$kind: http-request
+name: Create Village with Polygon
+method: POST
+url: '{{baseUrl}}/api/villages'
+order: 5000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Sample Village with Boundary",
+      "location": {
+        "type": "Point",
+        "coordinates": [9.7679, 4.0511]
+      },
+      "population": 2000,
+      "region": "Littoral",
+      "country": "CM",
+      "status": "pioneer",
+      "boundary": {
+        "type": "Polygon",
+        "coordinates": [[
+          [9.760, 4.045],
+          [9.775, 4.045],
+          [9.775, 4.058],
+          [9.760, 4.058],
+          [9.760, 4.045]
+        ]]
+      }
+    }

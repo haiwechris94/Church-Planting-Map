@@ -1,0 +1,18 @@
+$kind: http-request
+name: 'Update Location'
+method: PUT
+url: '{{baseUrl}}/api/auth/location'
+order: 6000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "latitude": 3.848,
+      "longitude": 11.502,
+      "country": "CM"
+    }

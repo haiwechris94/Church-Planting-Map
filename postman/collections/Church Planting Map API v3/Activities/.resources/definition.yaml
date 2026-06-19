@@ -1,0 +1,4 @@
+$kind: collection
+name: Activities
+description: Missionary activity log with filtering and pagination.
+order: 12000

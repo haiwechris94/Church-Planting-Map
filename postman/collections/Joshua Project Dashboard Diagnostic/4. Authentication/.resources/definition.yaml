@@ -1,0 +1,7 @@
+$kind: collection
+name: 4. Authentication
+description: |-
+  Obtain a JWT auth token. Run this first — the Login request automatically
+  saves the token to the `authToken` environment variable so all other
+  requests in this collection are authenticated.
+order: 4000

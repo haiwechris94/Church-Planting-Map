@@ -1,0 +1,23 @@
+name: Geocoding-app - Local
+values:
+  - key: baseUrl
+    value: 'http://localhost:3000'
+    enabled: true
+  - key: apiVersion
+    value: v1
+    enabled: true
+  - key: timeout
+    value: '30000'
+    enabled: true
+  - key: maxRadius
+    value: '50'
+    enabled: true
+  - key: defaultRadius
+    value: '10'
+    enabled: true
+  - key: exportFormat
+    value: excel
+    enabled: true
+  - key: frontendUrl
+    value: 'http://localhost:8085'
+    enabled: true

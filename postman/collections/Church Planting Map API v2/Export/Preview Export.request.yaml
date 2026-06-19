@@ -1,0 +1,9 @@
+$kind: http-request
+url: "{{baseUrl}}/api/export/preview?format=geojson&limit=10"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  format: geojson
+  limit: "10"
+order: 4000

@@ -1,0 +1,4 @@
+$kind: collection
+name: Peoples
+description: Population records management with role-based access control.
+order: 22000

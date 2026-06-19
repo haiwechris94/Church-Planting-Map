@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/api/auth/users?limit=50&skip=0"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: limit
+    value: "50"
+  - key: skip
+    value: "0"
+  - key: role
+    value: ""
+    disabled: true
+  - key: search
+    value: ""
+    disabled: true
+order: 8000

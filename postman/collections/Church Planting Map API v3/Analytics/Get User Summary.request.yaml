@@ -1,0 +1,7 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/analytics/user-summary'
+order: 7000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'

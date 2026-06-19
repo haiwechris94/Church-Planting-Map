@@ -1,0 +1,9 @@
+$kind: http-request
+name: Get People Group by ID
+method: GET
+url: '{{baseUrl}}/api/people-groups/{{peopleGroupId}}'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true

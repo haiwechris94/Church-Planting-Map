@@ -1,0 +1,20 @@
+$kind: http-request
+method: PUT
+url: '{{baseUrl}}/api/organizations/{{organizationId}}/members/{{userId}}/role'
+order: 9000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: organizationId
+    value: '{{organizationId}}'
+  - key: userId
+    value: '{{userId}}'
+body:
+  type: json
+  content: |-
+    {
+      "role": "supervisor"
+    }

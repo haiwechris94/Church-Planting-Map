@@ -1,0 +1,43 @@
+{
+  "downloadedAt": "2026-01-07T08:10:05.826Z",
+  "dataDirectory": "C:\\Users\\AFC\\church-planting-map\\backend\\data\\population",
+  "files": [
+    {
+      "file": "CMR_admpop2_2025.csv",
+      "path": "C:\\Users\\AFC\\church-planting-map\\backend\\data\\population\\CMR_admpop2_2025.csv",
+      "metadata": {
+        "filename": "metadata-cmr_admpop2_2025-csv.json",
+        "name": "CMR_admpop2_2025.csv",
+        "description": "2025 projected population statistics for Cameroon at administrative level 2, disaggregated by sex and age.",
+        "downloadUrl": "https://data.humdata.org/dataset/e8db7923-6cd2-4974-ad57-14a157978cfd/resource/c23633c8-f033-44bd-b43b-e8a1bc487784/download/copy-of-cmr_admpop_met_2025.csv",
+        "format": "CSV",
+        "size": "1.4K"
+      }
+    },
+    {
+      "file": "CMR_admpop_adm1_2025.csv",
+      "path": "C:\\Users\\AFC\\church-planting-map\\backend\\data\\population\\CMR_admpop_adm1_2025.csv",
+      "metadata": {
+        "filename": "metadata-cmr_admpop_adm1_2025-csv.json",
+        "name": "CMR_admpop_adm1_2025.csv",
+        "description": "2025 projected population statistics for Cameroon at administrative level 1, disaggregated by sex and age.",
+        "downloadUrl": "https://data.humdata.org/dataset/e8db7923-6cd2-4974-ad57-14a157978cfd/resource/09be4b94-28bb-4921-a7e0-19967c178230/download/copy-of-cmr_admpop_adm1_2025.csv",
+        "format": "CSV",
+        "size": "4.6K"
+      }
+    },
+    {
+      "file": "CMR_admpop_adm0_2025.csv",
+      "path": "C:\\Users\\AFC\\church-planting-map\\backend\\data\\population\\CMR_admpop_adm0_2025.csv",
+      "metadata": {
+        "filename": "metadata-cmr_admpop_adm0_2025-csv.json",
+        "name": "CMR_admpop_adm0_2025.csv",
+        "description": "2025 projected population statistics for Cameroon at administrative level 0, disaggregated by sex and age.",
+        "downloadUrl": "https://data.humdata.org/dataset/e8db7923-6cd2-4974-ad57-14a157978cfd/resource/e4b2b236-5b8c-462f-989d-993eee4b3be3/download/copy-of-cmr_admpop_adm0_2025.csv",
+        "format": "CSV",
+        "size": "1.0K"
+      }
+    }
+  ],
+  "failed": []
+}

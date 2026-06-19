@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/export/share-link?center=-73.935,40.730&zoom=12"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: center
+    value: -73.935,40.730
+  - key: zoom
+    value: "12"
+  - key: layers
+    value: villages,people-groups
+    disabled: true
+order: 5000

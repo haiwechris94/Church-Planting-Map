@@ -1,0 +1,4 @@
+$kind: collection
+name: Villages
+description: CRUD operations for villages with geographic filtering and pagination.
+order: 1000

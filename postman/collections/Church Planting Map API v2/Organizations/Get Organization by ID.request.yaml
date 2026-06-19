@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/api/organizations/:id"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+pathVariables:
+  id: ""
+order: 2000

@@ -1,0 +1,12 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/voronoi/:id'
+order: 5000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+pathVariables:
+  - key: id
+    value: '{{villageId}}'
+    description: Voronoi cell ID

@@ -1,0 +1,5 @@
+$kind: http-request
+description: Check API health status, MongoDB connection, and WebSocket connections.
+url: "{{baseUrl}}/health"
+method: GET
+order: 2000

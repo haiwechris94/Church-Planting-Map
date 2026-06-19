@@ -1,0 +1,4 @@
+$kind: collection
+name: Admin
+description: Admin-only user management endpoints.
+order: 21000

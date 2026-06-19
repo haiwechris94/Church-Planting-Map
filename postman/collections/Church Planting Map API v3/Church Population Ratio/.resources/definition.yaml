@@ -1,0 +1,4 @@
+$kind: collection
+name: Church Population Ratio
+description: Church-to-population ratio data by administrative level.
+order: 23000

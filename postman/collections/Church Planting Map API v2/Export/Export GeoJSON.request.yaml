@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{baseUrl}}/api/export/geojson?includeVillages=true&includePeopleGroups=true"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: includeVillages
+    value: "true"
+  - key: includePeopleGroups
+    value: "true"
+  - key: region
+    value: ""
+    disabled: true
+  - key: country
+    value: ""
+    disabled: true
+  - key: status
+    value: ""
+    disabled: true
+order: 1000

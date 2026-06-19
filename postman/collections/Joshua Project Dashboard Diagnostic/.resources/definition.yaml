@@ -1,0 +1,34 @@
+$kind: collection
+name: Joshua Project Dashboard Diagnostic
+description: |-
+  Diagnostic collection for investigating why Joshua Project people groups don't appear in the dashboard.
+
+  ## Root Cause
+  The dashboard controller excludes Joshua Project data by default unless the `includeJoshuaProject=true`
+  query parameter is explicitly passed. This collection helps verify that hypothesis and trace the data
+  pipeline from sync → storage → API → dashboard.
+
+  ## How to Use
+  1. Run **Folder 4 (Authentication)** first to get a valid `authToken`.
+  2. Run **Folder 1 (Dashboard Endpoints)** to compare responses with and without `includeJoshuaProject=true`.
+  3. Run **Folder 2 (People Groups - Data Verification)** to confirm JP data exists in the database.
+  4. Run **Folder 3 (Joshua Project Sync)** if no JP data is found.
+
+  ## Variables Required
+  - `baseUrl` — e.g. `http://localhost:5000`
+  - `authToken` — populated automatically by the Login request
+  - `adminEmail` — admin user email
+  - `adminPassword` — admin user password
+variables:
+  - key: baseUrl
+    value: 'http://localhost:5000'
+    description: Base URL of the Church Planting Map backend API
+  - key: authToken
+    value: ''
+    description: 'JWT auth token — populated automatically by the Login request'
+  - key: adminEmail
+    value: ''
+    description: Admin user email address
+  - key: adminPassword
+    value: ''
+    description: Admin user password

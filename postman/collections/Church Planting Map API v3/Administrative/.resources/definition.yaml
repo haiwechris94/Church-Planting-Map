@@ -1,0 +1,4 @@
+$kind: collection
+name: Administrative
+description: Cameroon administrative boundary data (regions, departments, subdivisions, villages).
+order: 11000

@@ -1,0 +1,17 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/api/import/validate'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+body:
+  type: formdata
+  content:
+    - key: file
+      type: file
+      src: people_groups_import_template.csv
+      description: CSV file to validate before import
+    - key: country
+      type: text
+      value: '{{countryCode}}'

@@ -1,0 +1,34 @@
+$kind: http-request
+url: "{{baseUrl}}/api/villages"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: >-
+    {
+      "name": "Test Village",
+      "description": "A test village with polygon boundary",
+      "location": {
+        "type": "Point",
+        "coordinates": [-73.935242, 40.730610]
+      },
+      "boundary": {
+        "type": "Polygon",
+        "coordinates": [[[-73.94, 40.73], [-73.93, 40.73], [-73.93, 40.74], [-73.94, 40.74], [-73.94, 40.73]]]
+      },
+      "population": 10000,
+      "status": "unreached",
+      "coverageStatus": "uncovered",
+      "coveragePercentage": 0,
+      "region": "Northeast",
+      "country": "USA",
+      "style": {
+        "fillColor": "#3388ff",
+        "fillOpacity": 0.2,
+        "strokeColor": "#3388ff",
+        "strokeWidth": 2
+      }
+    }
+order: 3000

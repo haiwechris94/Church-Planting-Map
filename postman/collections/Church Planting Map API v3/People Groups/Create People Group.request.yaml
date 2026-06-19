@@ -1,0 +1,28 @@
+$kind: http-request
+name: Create People Group
+method: POST
+url: '{{baseUrl}}/api/people-groups'
+order: 7000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Fulani",
+      "localName": "Fulbe",
+      "country": "CM",
+      "region": "Adamawa",
+      "population": 120000,
+      "language": "Fulfulde",
+      "religion": "Islam",
+      "status": "unreached",
+      "location": {
+        "type": "Point",
+        "coordinates": [13.5, 7.5]
+      },
+      "description": "Nomadic people group in northern Cameroon"
+    }

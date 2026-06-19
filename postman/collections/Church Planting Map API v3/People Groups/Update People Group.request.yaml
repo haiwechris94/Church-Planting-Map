@@ -1,0 +1,18 @@
+$kind: http-request
+name: Update People Group
+method: PUT
+url: '{{baseUrl}}/api/people-groups/{{peopleGroupId}}'
+order: 8000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "status": "engaged",
+      "population": 125000,
+      "description": "Updated description for this people group"
+    }

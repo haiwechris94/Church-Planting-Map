@@ -1,0 +1,22 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/api/import/people-groups'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+body:
+  type: formdata
+  content:
+    - key: file
+      type: file
+      src: people_groups_import_template.csv
+      description: CSV file with people groups data
+    - key: country
+      type: text
+      value: '{{countryCode}}'
+      description: Target country code
+    - key: overwrite
+      type: text
+      value: 'false'
+      description: Overwrite existing records

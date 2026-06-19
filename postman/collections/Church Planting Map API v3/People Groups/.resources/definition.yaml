@@ -1,0 +1,4 @@
+$kind: collection
+name: People Groups
+description: People group management with photo upload, approval workflow, and DMM status tracking.
+order: 2000

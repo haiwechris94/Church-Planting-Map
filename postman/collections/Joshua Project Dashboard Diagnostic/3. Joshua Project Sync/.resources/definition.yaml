@@ -1,0 +1,6 @@
+$kind: collection
+name: 3. Joshua Project Sync
+description: |-
+  Trigger a Joshua Project data sync for a specific country. Use this folder
+  if the data verification requests show no JP people groups in the database.
+order: 3000

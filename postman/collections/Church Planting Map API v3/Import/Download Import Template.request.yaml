@@ -1,0 +1,12 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/import/template'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+queryParams:
+  - key: country
+    value: '{{countryCode}}'
+    description: Country code to tailor the template
+    disabled: true

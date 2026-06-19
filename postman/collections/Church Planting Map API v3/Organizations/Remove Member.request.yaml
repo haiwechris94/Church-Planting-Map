@@ -1,0 +1,12 @@
+$kind: http-request
+method: DELETE
+url: '{{baseUrl}}/api/organizations/{{organizationId}}/members/{{userId}}'
+order: 8000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+pathVariables:
+  - key: organizationId
+    value: '{{organizationId}}'
+  - key: userId
+    value: '{{userId}}'

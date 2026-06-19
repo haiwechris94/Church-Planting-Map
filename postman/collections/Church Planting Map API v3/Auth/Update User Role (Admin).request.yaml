@@ -1,0 +1,19 @@
+$kind: http-request
+name: 'Update User Role (Admin)'
+method: PUT
+url: '{{baseUrl}}/api/auth/users/{{userId}}/role'
+order: 9000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+pathVariables:
+  - key: userId
+    value: '{{userId}}'
+body:
+  type: json
+  content: |-
+    {
+      "role": "supervisor"
+    }

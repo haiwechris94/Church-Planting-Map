@@ -1,0 +1,17 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/api/organizations/{{organizationId}}/logo'
+order: 6000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+pathVariables:
+  - key: organizationId
+    value: '{{organizationId}}'
+body:
+  type: formdata
+  content:
+    - key: logo
+      type: file
+      src: logo.png
+      description: Organization logo image file

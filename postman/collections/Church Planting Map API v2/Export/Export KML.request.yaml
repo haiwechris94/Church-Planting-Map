@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/export/kml?includeVillages=true&includePeopleGroups=true"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: includeVillages
+    value: "true"
+  - key: includePeopleGroups
+    value: "true"
+  - key: documentName
+    value: My Export
+    disabled: true
+order: 2000

@@ -1,0 +1,16 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/export/preview'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+queryParams:
+  - key: country
+    value: '{{countryCode}}'
+    disabled: true
+  - key: status
+    value: active
+    disabled: true
+  - key: limit
+    value: '10'

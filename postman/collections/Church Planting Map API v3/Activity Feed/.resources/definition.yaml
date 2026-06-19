@@ -1,0 +1,4 @@
+$kind: collection
+name: Activity Feed
+description: Recent missionary activity feed for the dashboard.
+order: 20000

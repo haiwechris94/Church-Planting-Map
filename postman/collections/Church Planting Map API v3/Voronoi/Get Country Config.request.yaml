@@ -1,0 +1,11 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/voronoi/countries/{{countryCode}}/config'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+pathVariables:
+  - key: countryCode
+    value: '{{countryCode}}'

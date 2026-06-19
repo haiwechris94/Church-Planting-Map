@@ -1,0 +1,4 @@
+$kind: collection
+name: Organizations
+description: Organization CRUD and member management.
+order: 3000

@@ -1,0 +1,18 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/analytics/top-regions'
+order: 14000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: country
+    value: '{{countryCode}}'
+    disabled: true
+  - key: metric
+    value: churches
+    description: 'Metric to rank by: churches, population, engagement'
+    disabled: true
+  - key: limit
+    value: '10'

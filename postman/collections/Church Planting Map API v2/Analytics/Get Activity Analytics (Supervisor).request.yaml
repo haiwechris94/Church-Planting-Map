@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/api/analytics/activity?days=30"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  days: "30"
+order: 4000

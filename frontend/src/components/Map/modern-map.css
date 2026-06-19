@@ -1,0 +1,55 @@
+/* Modern map styling — global tweaks for Leaflet popups, markers, clusters */
+
+/* Modern marker hover scale */
+.modern-marker-wrapper {
+  background: transparent !important;
+  border: none !important;
+}
+.modern-marker-wrapper:hover .modern-marker {
+  transform: scale(1.2) !important;
+  filter: brightness(1.05);
+}
+
+/* Cluster wrapper — strip default styles */
+.modern-cluster-wrapper {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Pulse animation for active markers */
+@keyframes modern-marker-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(37,99,235, 0.55); }
+  70%  { box-shadow: 0 0 0 14px rgba(37,99,235, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(37,99,235, 0); }
+}
+.modern-marker-pulse {
+  animation: modern-marker-pulse 1.6s ease-out infinite;
+}
+
+/* Modern Leaflet popup (Tailwind-friendly) */
+.leaflet-popup.modern-leaflet-popup .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15), 0 8px 10px -6px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
+}
+.leaflet-popup.modern-leaflet-popup .leaflet-popup-content {
+  margin: 12px 14px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.leaflet-popup.modern-leaflet-popup .leaflet-popup-tip {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Hide leaflet default zoom (we render our own) */
+.leaflet-container.modern-map .leaflet-control-zoom {
+  display: none !important;
+}
+
+/* Attribution — softer */
+.leaflet-container.modern-map .leaflet-control-attribution {
+  background: rgba(255,255,255,0.85) !important;
+  backdrop-filter: blur(2px);
+  font-size: 10px;
+  border-radius: 6px 0 0 0;
+}

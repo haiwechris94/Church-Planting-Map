@@ -1,0 +1,4 @@
+$kind: collection
+name: Boundaries
+description: Administrative boundary data for African countries.
+order: 10000

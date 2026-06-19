@@ -1,0 +1,23 @@
+$kind: http-request
+name: Get Nearby Villages
+method: GET
+url: '{{baseUrl}}/api/villages/nearby'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: lat
+    value: '4.0511'
+    description: Latitude of center point
+  - key: lng
+    value: '9.7679'
+    description: Longitude of center point
+  - key: radius
+    value: '50'
+    description: Search radius in kilometers
+    disabled: true
+  - key: limit
+    value: '20'
+    disabled: true

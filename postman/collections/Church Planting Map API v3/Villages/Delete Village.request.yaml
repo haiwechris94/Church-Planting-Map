@@ -1,0 +1,8 @@
+$kind: http-request
+name: Delete Village
+method: DELETE
+url: '{{baseUrl}}/api/villages/{{villageId}}'
+order: 7000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'

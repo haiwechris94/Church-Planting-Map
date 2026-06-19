@@ -1,0 +1,16 @@
+$kind: http-request
+name: Get Statistics Summary
+method: GET
+url: '{{baseUrl}}/api/people-groups/stats/summary'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: country
+    value: CM
+    disabled: true
+  - key: region
+    value: ''
+    disabled: true

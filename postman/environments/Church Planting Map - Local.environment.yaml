@@ -1,0 +1,8 @@
+name: Church Planting Map - Local
+values:
+  - key: baseUrl
+    value: 'http://localhost:5000'
+    enabled: true
+  - key: token
+    value: ''
+    enabled: true

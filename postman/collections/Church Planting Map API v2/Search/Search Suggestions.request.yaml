@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/api/search/suggestions?q=test&limit=5"
+method: GET
+queryParams:
+  q: test
+  limit: "5"
+order: 2000

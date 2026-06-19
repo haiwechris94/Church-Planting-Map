@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/api/people-groups/:id/reject"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+pathVariables:
+  id: ""
+body:
+  type: text
+  content: |-
+    {
+      "reason": "Duplicate entry"
+    }
+order: 11000

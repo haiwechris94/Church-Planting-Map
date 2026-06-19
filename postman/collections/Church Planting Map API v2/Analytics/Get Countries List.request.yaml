@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/api/analytics/countries"
+method: GET
+order: 6000

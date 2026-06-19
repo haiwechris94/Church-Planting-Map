@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/api/analytics/regions"
+method: GET
+queryParams:
+  - key: country
+    value: ""
+    disabled: true
+order: 5000

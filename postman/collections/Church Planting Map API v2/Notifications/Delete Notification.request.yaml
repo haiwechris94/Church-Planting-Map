@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/api/notifications/:id"
+method: DELETE
+headers:
+  Authorization: Bearer {{token}}
+pathVariables:
+  id: ""
+order: 5000

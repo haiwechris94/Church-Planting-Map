@@ -1,0 +1,9 @@
+$kind: http-request
+url: "{{baseUrl}}/api/people-groups/nearby/:lng/:lat?maxDistance=10000"
+method: GET
+queryParams:
+  maxDistance: "10000"
+pathVariables:
+  lng: "-73.935242"
+  lat: "40.730610"
+order: 4000

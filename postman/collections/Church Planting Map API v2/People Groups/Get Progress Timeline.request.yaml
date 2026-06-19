@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/api/people-groups/:id/timeline"
+method: GET
+pathVariables:
+  id: ""
+order: 12000

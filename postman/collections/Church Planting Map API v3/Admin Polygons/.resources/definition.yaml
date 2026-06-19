@@ -1,0 +1,4 @@
+$kind: collection
+name: Admin Polygons
+description: Administrative boundary polygons filtered by country and level.
+order: 19000

@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/api/notifications?limit=20&skip=0"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: limit
+    value: "20"
+  - key: skip
+    value: "0"
+  - key: type
+    value: ""
+    disabled: true
+  - key: unreadOnly
+    value: "true"
+    disabled: true
+order: 1000

@@ -1,0 +1,11 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/import/template/{{countryCode}}'
+order: 5000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+pathVariables:
+  - key: countryCode
+    value: '{{countryCode}}'
+    description: Country-specific template (e.g. CM, TD, CF)

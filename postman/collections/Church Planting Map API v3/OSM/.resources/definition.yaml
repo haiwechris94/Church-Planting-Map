@@ -1,0 +1,4 @@
+$kind: collection
+name: OSM
+description: OpenStreetMap village extraction jobs for Central African countries.
+order: 16000

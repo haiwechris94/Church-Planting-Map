@@ -1,0 +1,22 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/analytics/timeline'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: country
+    value: '{{countryCode}}'
+    disabled: true
+  - key: startDate
+    value: '2024-01-01'
+    disabled: true
+  - key: endDate
+    value: '2024-12-31'
+    disabled: true
+  - key: granularity
+    value: month
+    description: 'Granularity: day, week, month, year'
+    disabled: true

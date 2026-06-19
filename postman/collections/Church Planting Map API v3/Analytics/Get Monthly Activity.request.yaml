@@ -1,0 +1,12 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/analytics/monthly-activity'
+order: 10000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+queryParams:
+  - key: months
+    value: '6'
+    description: Number of months to include
+    disabled: true

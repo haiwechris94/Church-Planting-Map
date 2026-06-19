@@ -1,0 +1,4 @@
+$kind: collection
+name: Joshua Project
+description: Joshua Project people groups data sync and retrieval.
+order: 15000

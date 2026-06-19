@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{baseUrl}}/api/organizations/:id"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+pathVariables:
+  id: ""
+body:
+  type: text
+  content: |-
+    {
+      "description": "Updated description",
+      "settings": {
+        "requireApproval": false
+      }
+    }
+order: 4000

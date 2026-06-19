@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/api/villages/:id"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+pathVariables:
+  id: ""
+body:
+  type: text
+  content: |-
+    {
+      "status": "in-progress",
+      "coverageStatus": "partially-covered",
+      "coveragePercentage": 25
+    }
+order: 5000

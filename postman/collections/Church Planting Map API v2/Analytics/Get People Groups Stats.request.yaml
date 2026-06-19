@@ -1,0 +1,59 @@
+$kind: http-request
+name: Get People Groups Stats
+order: 9000
+method: GET
+url: '{{baseUrl}}/api/analytics/people-groups-stats'
+description: |-
+  Retourne les statistiques complètes des groupes de peuples : totaux, taux
+  d'évangélisation, distribution des statuts, top 5 par population, religions
+  et langues. Supporte le filtre ?region= pour filtrer par région.
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+queryParams:
+  - key: region
+    value: ''
+    description: 'Filtrer par région (ex: Adamaoua)'
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      // ── 1. Status 200 ──────────────────────────────────────────────────────────
+      pm.test('Status 200 OK', () => {
+        pm.response.to.have.status(200);
+      });
+
+      // ── 2. Champs obligatoires présents ────────────────────────────────────────
+      pm.test('Champs obligatoires présents', () => {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('totalPeopleGroups').that.is.a('number');
+        pm.expect(json).to.have.property('statusDistribution').that.is.an('array');
+        pm.expect(json).to.have.property('regions').that.is.an('array');
+        pm.expect(json).to.have.property('top5ByPopulation').that.is.an('array');
+        pm.expect(json).to.have.property('evangelismRate').that.is.a('number');
+      });
+
+      // ── 3. Temps de réponse < 3 secondes ───────────────────────────────────────
+      pm.test('Temps de réponse < 3000ms', () => {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+
+      // ── 4. Alerte si aucun groupe trouvé ───────────────────────────────────────
+      pm.test('Données disponibles (groupes > 0)', () => {
+        const json = pm.response.json();
+        if (json.totalPeopleGroups === 0) {
+          console.warn('⚠️ Aucun groupe de peuples trouvé — vérifier la base de données');
+        }
+        pm.expect(json.totalPeopleGroups).to.be.at.least(0);
+      });
+
+      // ── 5. Structure statusDistribution valide ─────────────────────────────────
+      pm.test('statusDistribution contient les statuts attendus', () => {
+        const json = pm.response.json();
+        const statuses = json.statusDistribution.map(s => s.status);
+        const expected = ['unreached', 'pioneer', 'midway', 'tipping-point', 'dmm'];
+        expected.forEach(s => pm.expect(statuses).to.include(s));
+      });

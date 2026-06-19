@@ -1,0 +1,12 @@
+{
+  "total": 10,
+  "jpCount": 0,
+  "jpWithoutLocation": 0,
+  "jpNotApproved": 0,
+  "sources": [
+    "DMM",
+    "Survey"
+  ],
+  "byCountry": [],
+  "sample": []
+}

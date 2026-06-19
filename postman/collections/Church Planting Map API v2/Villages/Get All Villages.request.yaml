@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/api/villages?limit=100&skip=0"
+method: GET
+queryParams:
+  - key: limit
+    value: "100"
+  - key: skip
+    value: "0"
+  - key: status
+    value: ""
+    disabled: true
+order: 1000

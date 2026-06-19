@@ -1,0 +1,35 @@
+$kind: collection
+description: >-
+  Enhanced API collection for the Church Planting Map application with real-time
+  collaboration features.
+
+
+  ## New Features in v2
+
+  - Role-based access control (admin, supervisor, missionary, guest)
+
+  - Photo uploads for people groups
+
+  - Real-time WebSocket updates
+
+  - Analytics and heatmaps
+
+  - Export to GeoJSON, KML, Excel
+
+  - Proximity notifications
+
+  - Organization management
+
+
+  ## Authentication
+
+  Most endpoints require JWT authentication. Use `/auth/login` or
+  `/auth/register` to obtain a token.
+
+
+  ## WebSocket
+
+  Connect to `ws://localhost:3000` with token in auth header for real-time
+  updates.
+variables:
+  baseUrl: http://localhost:3000

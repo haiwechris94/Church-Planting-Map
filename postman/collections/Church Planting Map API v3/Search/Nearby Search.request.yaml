@@ -1,0 +1,23 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/search/nearby'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: lat
+    value: '3.848'
+    description: Latitude of center point
+  - key: lng
+    value: '11.502'
+    description: Longitude of center point
+  - key: radius
+    value: '50'
+    description: Search radius in kilometers
+  - key: type
+    value: all
+    disabled: true
+  - key: limit
+    value: '20'

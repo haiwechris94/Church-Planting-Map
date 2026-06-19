@@ -1,0 +1,17 @@
+$kind: http-request
+name: 'GET AI Summary (Debug)'
+method: GET
+url: '{{baseUrl}}/api/analytics/ai-summary'
+order: 1000
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      console.log('Request started at:', new Date().toISOString());
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      console.log('Response time:', pm.response.responseTime, 'ms');
+      pm.test("Status is 200", () => pm.response.to.have.status(200));
+      pm.test("Has insights", () => { const json = pm.response.json(); pm.expect(json).to.have.property('insights'); pm.expect(json.insights).to.be.an('array'); });
+      pm.test("Has aiPowered flag", () => { const json = pm.response.json(); pm.expect(json).to.have.property('aiPowered'); console.log('AI Powered:', json.aiPowered); });

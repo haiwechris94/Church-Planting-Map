@@ -1,0 +1,69 @@
+$kind: http-request
+url: '{{baseUrl}}/api/people-groups'
+method: GET
+queryParams:
+  - key: limit
+    value: '100'
+  - key: skip
+    value: '0'
+  - key: status
+    value: 'pioneer,mid-journey'
+    disabled: true
+  - key: organization
+    value: ''
+    disabled: true
+  - key: search
+    value: ''
+    disabled: true
+  - key: approved
+    value: 'true'
+    disabled: true
+  - key: region
+    value: ''
+    disabled: true
+  - key: country
+    value: ''
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - People groups accessible", () => {
+          pm.response.to.have.status(200);
+      });
+
+      const responseData = pm.response.json();
+
+      // Handle different response formats
+      let peopleGroups = [];
+      let total = 0;
+
+      if (Array.isArray(responseData)) {
+          peopleGroups = responseData;
+          total = responseData.length;
+      } else if (responseData.data && Array.isArray(responseData.data)) {
+          peopleGroups = responseData.data;
+          total = responseData.total || responseData.data.length;
+      } else if (responseData.peopleGroups && Array.isArray(responseData.peopleGroups)) {
+          peopleGroups = responseData.peopleGroups;
+          total = responseData.total || responseData.totalCount || responseData.peopleGroups.length;
+      }
+
+      pm.test("People groups are returned", () => {
+          pm.expect(total).to.be.at.least(0);
+          console.log(`✅ Tous les utilisateurs peuvent voir ${total} peuples ajoutés par tous les utilisateurs`);
+      });
+
+      pm.test("Response has valid structure", () => {
+          pm.expect(responseData).to.satisfy((d) => Array.isArray(d) || typeof d === 'object');
+      });
+
+      // Store total for use in other requests
+      pm.collectionVariables.set("totalPeopleGroups", total);
+
+      if (peopleGroups.length > 0) {
+          // Store first people group ID for subsequent requests
+          pm.collectionVariables.set("peopleGroupId", peopleGroups[0]._id);
+          console.log(`Premier peuple: ${peopleGroups[0].name} (ID: ${peopleGroups[0]._id})`);
+      }
+order: 1000

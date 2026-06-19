@@ -1,0 +1,4 @@
+$kind: collection
+name: Import
+description: CSV import for people groups and villages.
+order: 7000

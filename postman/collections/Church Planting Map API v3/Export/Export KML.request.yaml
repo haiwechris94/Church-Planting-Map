@@ -1,0 +1,14 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/export/kml'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+queryParams:
+  - key: country
+    value: '{{countryCode}}'
+    disabled: true
+  - key: status
+    value: active
+    disabled: true

@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{baseUrl}}/api/people-groups/:id"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+pathVariables:
+  id: ""
+body:
+  type: text
+  content: |-
+    {
+      "status": "mid-journey",
+      "progressPercentage": 35,
+      "progressNotes": "Regular meetings established",
+      "believersCount": 150
+    }
+order: 8000

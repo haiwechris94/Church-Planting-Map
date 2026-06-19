@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{baseUrl}}/api/people-groups"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Test People Group",
+      "description": "A test people group for demonstration",
+      "status": "pioneer",
+      "location": {
+        "type": "Point",
+        "coordinates": [-73.935242, 40.730610]
+      },
+      "population": 5000,
+      "language": "English",
+      "religion": "Traditional",
+      "believersCount": 50,
+      "churchesCount": 1,
+      "progressPercentage": 10,
+      "progressNotes": "Initial contact made",
+      "region": "Northeast",
+      "country": "USA"
+    }
+order: 6000

@@ -1,0 +1,38 @@
+$kind: http-request
+name: Get All Villages
+method: GET
+url: '{{baseUrl}}/api/villages'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    description: Optional - provides extra data when authenticated
+queryParams:
+  - key: status
+    value: pioneer
+    description: 'Filter by status: pioneer, mid-journey, tipping-point, movement'
+    disabled: true
+  - key: country
+    value: CM
+    description: 'ISO country code (e.g. CM, TD, CF)'
+    disabled: true
+  - key: region
+    value: ''
+    description: Region/admin1 name
+    disabled: true
+  - key: admin2
+    value: ''
+    description: Department/admin2 name
+    disabled: true
+  - key: admin3
+    value: ''
+    description: Arrondissement/admin3 name
+    disabled: true
+  - key: page
+    value: '1'
+    description: Page number (1-based)
+    disabled: true
+  - key: limit
+    value: '100'
+    description: Records per page (max 500)
+    disabled: true

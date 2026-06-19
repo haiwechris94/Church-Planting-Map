@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/api/analytics/timeline?type=people-groups&period=30&groupBy=day"
+method: GET
+queryParams:
+  type: people-groups
+  period: "30"
+  groupBy: day
+order: 3000

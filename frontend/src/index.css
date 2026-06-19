@@ -1,0 +1,863 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+ * BASE STYLES
+ * Global resets and body styling
+ * ============================================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: linear-gradient(135deg, #fafbfc 0%, #f4f6f8 100%);
+  color: #2d3843;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================================
+ * MOBILE ZOOM PREVENTION
+ * Prevents iOS Safari from auto-zooming on input focus
+ * Font-size must be >= 16px to prevent zoom
+ * ============================================================================ */
+
+/* Ensure all form inputs have minimum 16px font to prevent iOS zoom */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
+
+/* Touch action optimization for map interactions */
+.leaflet-container {
+  touch-action: pan-x pan-y;
+}
+
+/* Prevent text selection during map drag */
+.leaflet-dragging .leaflet-container {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Leaflet custom styles */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+.custom-marker {
+  background: transparent;
+  border: none;
+}
+
+.marker-cluster {
+  background-color: rgba(14, 165, 233, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}
+
+/* Status colors for markers */
+.marker-unreached {
+  filter: hue-rotate(0deg);
+}
+
+.marker-in-progress {
+  filter: hue-rotate(45deg);
+}
+
+.marker-church-planted {
+  filter: hue-rotate(120deg);
+}
+
+.marker-multiplying {
+  filter: hue-rotate(180deg);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   Modern Form Styles
+   ============================================ */
+.form-input {
+  @apply w-full px-4 py-2.5 border border-neutral-300 rounded-lg 
+         focus:ring-2 focus:ring-primary-400 focus:border-primary-500 
+         outline-none transition-all duration-200
+         bg-white shadow-soft
+         placeholder:text-neutral-400
+         hover:border-neutral-400;
+}
+
+.form-label {
+  @apply block text-sm font-semibold text-neutral-700 mb-2;
+}
+
+.form-error {
+  @apply text-sm text-danger-600 mt-1 flex items-center gap-1;
+}
+
+.form-helper {
+  @apply text-xs text-neutral-500 mt-1;
+}
+
+/* ============================================
+   Modern Button System
+   ============================================ */
+
+/* Base button styles */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 
+         px-4 py-2.5 rounded-lg font-medium
+         transition-all duration-200
+         focus:outline-none focus:ring-2 focus:ring-offset-2
+         disabled:opacity-50 disabled:cursor-not-allowed
+         shadow-soft hover:shadow-soft-lg;
+}
+
+/* Primary button - Teal */
+.btn-primary {
+  @apply btn bg-primary-500 text-white 
+         hover:bg-primary-600 active:bg-primary-700
+         focus:ring-primary-400;
+}
+
+/* Secondary button - Green */
+.btn-secondary {
+  @apply btn bg-neutral-100 text-neutral-700 
+         hover:bg-neutral-200 active:bg-neutral-300
+         focus:ring-neutral-400
+         border border-neutral-300;
+}
+
+/* Success button - Green */
+.btn-success {
+  @apply btn bg-success-500 text-white 
+         hover:bg-success-600 active:bg-success-700
+         focus:ring-success-400;
+}
+
+/* Warning button - Orange */
+.btn-warning {
+  @apply btn bg-warning-500 text-white 
+         hover:bg-warning-600 active:bg-warning-700
+         focus:ring-warning-400;
+}
+
+/* Danger button - Red */
+.btn-danger {
+  @apply btn bg-danger-500 text-white 
+         hover:bg-danger-600 active:bg-danger-700
+         focus:ring-danger-400;
+}
+
+/* Accent button - Orange */
+.btn-accent {
+  @apply btn bg-accent-500 text-white 
+         hover:bg-accent-600 active:bg-accent-700
+         focus:ring-accent-400;
+}
+
+/* Outline variants */
+.btn-outline-primary {
+  @apply btn bg-transparent text-primary-600 border-2 border-primary-500
+         hover:bg-primary-50 active:bg-primary-100
+         focus:ring-primary-400;
+}
+
+.btn-outline-secondary {
+  @apply btn bg-transparent text-neutral-700 border-2 border-neutral-300
+         hover:bg-neutral-50 active:bg-neutral-100
+         focus:ring-neutral-400;
+}
+
+/* Ghost variants */
+.btn-ghost {
+  @apply btn bg-transparent text-neutral-700 shadow-none
+         hover:bg-neutral-100 active:bg-neutral-200
+         focus:ring-neutral-400;
+}
+
+.btn-ghost-primary {
+  @apply btn bg-transparent text-primary-600 shadow-none
+         hover:bg-primary-50 active:bg-primary-100
+         focus:ring-primary-400;
+}
+
+/* Size variants */
+.btn-sm {
+  @apply px-3 py-1.5 text-sm;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-lg;
+}
+
+.btn-icon {
+  @apply p-2.5 rounded-lg;
+}
+
+/* ============================================
+   Modern Tab System
+   ============================================ */
+.tabs-container {
+  @apply flex gap-1 p-1 bg-neutral-100 rounded-xl shadow-inner-soft;
+}
+
+.tab {
+  @apply px-4 py-2.5 rounded-lg font-medium text-sm
+         transition-all duration-200
+         text-neutral-600 hover:text-neutral-800
+         hover:bg-white/50;
+}
+
+.tab-active {
+  @apply bg-white text-primary-600 shadow-soft;
+}
+
+/* Underline tab variant */
+.tabs-underline {
+  @apply flex gap-6 border-b border-neutral-200;
+}
+
+.tab-underline {
+  @apply px-1 py-3 font-medium text-sm
+         transition-all duration-200
+         text-neutral-600 hover:text-neutral-800
+         border-b-2 border-transparent
+         hover:border-neutral-300;
+}
+
+.tab-underline-active {
+  @apply text-primary-600 border-primary-500;
+}
+
+/* ============================================
+   Modern Card System
+   ============================================ */
+.card {
+  @apply bg-white rounded-xl shadow-soft p-6
+         border border-neutral-200/50;
+}
+
+.card-hover {
+  @apply card transition-all duration-200
+         hover:shadow-soft-lg hover:-translate-y-0.5;
+}
+
+.card-interactive {
+  @apply card-hover cursor-pointer
+         active:scale-[0.98];
+}
+
+.card-header {
+  @apply flex items-center justify-between mb-4 pb-4 border-b border-neutral-200;
+}
+
+.card-title {
+  @apply text-lg font-semibold text-neutral-800;
+}
+
+.card-body {
+  @apply space-y-4;
+}
+
+.card-footer {
+  @apply flex items-center justify-between mt-6 pt-4 border-t border-neutral-200;
+}
+
+/* ============================================
+   Modern Badge System
+   ============================================ */
+.badge {
+  @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full
+         text-xs font-semibold;
+}
+
+.badge-primary {
+  @apply badge bg-primary-100 text-primary-700;
+}
+
+.badge-secondary {
+  @apply badge bg-secondary-100 text-secondary-700;
+}
+
+.badge-success {
+  @apply badge bg-success-100 text-success-700;
+}
+
+.badge-warning {
+  @apply badge bg-warning-100 text-warning-700;
+}
+
+.badge-danger {
+  @apply badge bg-danger-100 text-danger-700;
+}
+
+.badge-accent {
+  @apply badge bg-accent-100 text-accent-700;
+}
+
+.badge-neutral {
+  @apply badge bg-neutral-100 text-neutral-700;
+}
+
+/* ============================================
+   Modern Filter/Chip System
+   ============================================ */
+.filter-chip {
+  @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg
+         text-sm font-medium
+         bg-white border border-neutral-300
+         transition-all duration-200
+         hover:border-primary-400 hover:bg-primary-50
+         cursor-pointer;
+}
+
+.filter-chip-active {
+  @apply bg-primary-500 text-white border-primary-500
+         hover:bg-primary-600 hover:border-primary-600;
+}
+
+.filter-chip-removable {
+  @apply filter-chip pr-1.5;
+}
+
+/* ============================================
+   Modern Layer/Panel System
+   ============================================ */
+.layer-panel {
+  @apply bg-white rounded-xl shadow-soft-lg p-4
+         border border-neutral-200/50
+         backdrop-blur-sm;
+}
+
+.layer-header {
+  @apply flex items-center justify-between mb-3 pb-3 border-b border-neutral-200;
+}
+
+.layer-title {
+  @apply text-sm font-semibold text-neutral-800 flex items-center gap-2;
+}
+
+.layer-item {
+  @apply flex items-center gap-3 p-2.5 rounded-lg
+         transition-all duration-200
+         hover:bg-neutral-50 cursor-pointer;
+}
+
+.layer-item-active {
+  @apply bg-primary-50 text-primary-700;
+}
+
+/* ============================================
+   Modern Toggle/Switch System
+   ============================================ */
+.toggle-switch {
+  @apply relative inline-flex h-6 w-11 items-center rounded-full
+         transition-colors duration-200 ease-in-out
+         focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2
+         cursor-pointer;
+}
+
+.toggle-switch-off {
+  @apply bg-neutral-300;
+}
+
+.toggle-switch-on {
+  @apply bg-primary-500;
+}
+
+.toggle-switch-handle {
+  @apply inline-block h-4 w-4 transform rounded-full bg-white
+         transition-transform duration-200 ease-in-out
+         shadow-soft;
+}
+
+.toggle-switch-handle-off {
+  @apply translate-x-1;
+}
+
+.toggle-switch-handle-on {
+  @apply translate-x-6;
+}
+
+/* ============================================
+   Voronoi Layer Styles
+   ============================================ */
+
+/* Voronoi tooltip container */
+.voronoi-tooltip-container {
+  background: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 0 !important;
+}
+
+.voronoi-tooltip-container::before {
+  border-top-color: white !important;
+}
+
+/* Voronoi tooltip content */
+.voronoi-tooltip {
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.voronoi-tooltip strong {
+  display: block;
+  font-size: 14px;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.voronoi-tooltip .status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+/* Voronoi polygon hover effect */
+.leaflet-interactive:hover {
+  cursor: pointer;
+}
+
+/* Voronoi legend animation */
+@keyframes legendFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.voronoi-legend-enter {
+  animation: legendFadeIn 0.3s ease-out;
+}
+
+/* ============================================
+   Advanced Search Suggestions Styles
+   ============================================ */
+
+/* Suggestions container with amber/orange tint */
+.suggestions-container {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #fcd34d;
+}
+
+/* Suggestion card styling */
+.suggestion-card {
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.suggestion-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
+}
+
+/* Similarity score badge */
+.similarity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.similarity-badge.high {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.similarity-badge.medium {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.similarity-badge.low {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+
+.similarity-badge.very-low {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Similarity progress bar */
+.similarity-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.similarity-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.similarity-bar-fill.high {
+  background-color: #22c55e;
+}
+
+.similarity-bar-fill.medium {
+  background-color: #eab308;
+}
+
+.similarity-bar-fill.low {
+  background-color: #f97316;
+}
+
+.similarity-bar-fill.very-low {
+  background-color: #ef4444;
+}
+
+/* Selection checkbox animation */
+.suggestion-checkbox {
+  transition: all 0.15s ease;
+}
+
+.suggestion-checkbox:hover {
+  transform: scale(1.1);
+}
+
+.suggestion-checkbox.selected {
+  animation: checkPop 0.2s ease;
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Suggestions list scrollbar */
+.suggestions-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestions-list::-webkit-scrollbar-track {
+  background: #fef3c7;
+  border-radius: 3px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb {
+  background: #fbbf24;
+  border-radius: 3px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb:hover {
+  background: #f59e0b;
+}
+
+/* Action buttons in suggestion cards */
+.suggestion-action-btn {
+  @apply text-xs px-2 py-1 rounded transition-colors;
+}
+
+.suggestion-action-btn.primary {
+  @apply bg-primary-100 text-primary-700 hover:bg-primary-200;
+}
+
+.suggestion-action-btn.secondary {
+  @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
+}
+
+/* Expanded radius info badge */
+.expanded-radius-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #d97706;
+  margin-top: 12px;
+}
+
+/* No results state */
+.no-results-state {
+  text-align: center;
+  padding: 24px;
+  background-color: #f9fafb;
+  border-radius: 12px;
+}
+
+.no-results-state svg {
+  margin: 0 auto 12px;
+  color: #d1d5db;
+}
+
+/* Pulse animation for loading state */
+@keyframes suggestionPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.suggestion-loading {
+  animation: suggestionPulse 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   FEATURE: Country Selector & Top Navbar
+   ============================================ */
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Scale in animation */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.15s ease-out forwards;
+}
+
+/* Slide down animation for mobile menu */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slideDown 0.25s ease-out forwards;
+}
+
+/* Country selector dropdown styles */
+.country-selector-dropdown {
+  @apply absolute right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50;
+  animation: scaleIn 0.15s ease-out forwards;
+}
+
+.country-selector-item {
+  @apply w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors;
+}
+
+.country-selector-item.active {
+  @apply bg-primary-50 text-primary-700 border-l-4 border-primary-500;
+}
+
+/* Top navbar styles */
+.top-navbar {
+  @apply bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50;
+}
+
+.top-navbar-link {
+  @apply flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200;
+}
+
+.top-navbar-link.active {
+  @apply bg-primary-50 text-primary-700 shadow-sm;
+}
+
+.top-navbar-link:not(.active) {
+  @apply text-gray-600 hover:bg-gray-50 hover:text-gray-800;
+}
+
+/* ============================================
+   FEATURE: Mini-Map Styles
+   ============================================ */
+
+.mini-map-container {
+  @apply bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden;
+}
+
+.mini-map-header {
+  @apply flex items-center justify-between px-2 py-1 bg-gray-50 border-b border-gray-200;
+}
+
+.mini-map-header-title {
+  @apply text-xs font-medium text-gray-600;
+}
+
+/* Mini-map viewport rectangle */
+.mini-map-viewport {
+  stroke: #3b82f6;
+  stroke-width: 2;
+  fill: #3b82f6;
+  fill-opacity: 0.15;
+}
+
+.mini-map-viewport.dragging {
+  stroke-dasharray: 5, 5;
+}
+
+/* ============================================
+   Soft Shadow Utilities
+   ============================================ */
+
+.shadow-soft {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-soft-lg {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-soft-xl {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ============================================
+   Responsive Utilities
+   ============================================ */
+
+/* Hide on mobile, show on larger screens */
+@media (max-width: 1023px) {
+  .lg-only {
+    display: none !important;
+  }
+}
+
+/* Show on mobile, hide on larger screens */
+@media (min-width: 1024px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* Full-height map container */
+.map-full-height {
+  height: calc(100vh - 8rem);
+  min-height: 400px;
+}
+
+/* Prevent iOS zoom on input focus */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  select,
+  textarea,
+  input[type="text"],
+  input[type="password"],
+  input[type="datetime"],
+  input[type="datetime-local"],
+  input[type="date"],
+  input[type="month"],
+  input[type="time"],
+  input[type="week"],
+  input[type="number"],
+  input[type="email"],
+  input[type="url"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="color"] {
+    font-size: 16px !important;
+  }
+}

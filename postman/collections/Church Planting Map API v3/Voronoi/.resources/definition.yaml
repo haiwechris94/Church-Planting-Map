@@ -1,0 +1,4 @@
+$kind: collection
+name: Voronoi
+description: Voronoi diagram generation and management for village influence zones.
+order: 9000

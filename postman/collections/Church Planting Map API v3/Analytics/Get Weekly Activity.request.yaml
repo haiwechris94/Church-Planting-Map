@@ -1,0 +1,12 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/analytics/weekly-activity'
+order: 9000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+queryParams:
+  - key: weeks
+    value: '4'
+    description: Number of weeks to include
+    disabled: true

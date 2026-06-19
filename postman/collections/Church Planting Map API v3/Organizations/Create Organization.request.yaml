@@ -1,0 +1,20 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/api/organizations'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "My Organization",
+      "description": "A church planting organization",
+      "country": "{{countryCode}}",
+      "region": "Centre",
+      "website": "https://example.org",
+      "contactEmail": "contact@example.org"
+    }

@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/api/analytics/heatmap?type=people-groups"
+method: GET
+queryParams:
+  - key: type
+    value: people-groups
+  - key: status
+    value: ""
+    disabled: true
+  - key: bounds
+    value: -74,40,-73,41
+    disabled: true
+order: 2000

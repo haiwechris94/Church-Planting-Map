@@ -1,0 +1,27 @@
+$kind: http-request
+name: Create Village
+method: POST
+url: '{{baseUrl}}/api/villages'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Sample Village",
+      "location": {
+        "type": "Point",
+        "coordinates": [9.7679, 4.0511]
+      },
+      "population": 1500,
+      "region": "Littoral",
+      "country": "CM",
+      "admin2": "Wouri",
+      "admin3": "Douala 1",
+      "status": "pioneer",
+      "description": "A sample village for testing"
+    }

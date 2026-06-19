@@ -1,0 +1,4 @@
+$kind: collection
+name: Stats
+description: Dashboard statistics for villages, churches, activities, and people groups.
+order: 13000

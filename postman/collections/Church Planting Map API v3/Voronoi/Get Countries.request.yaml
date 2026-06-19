@@ -1,0 +1,8 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/voronoi/countries'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true

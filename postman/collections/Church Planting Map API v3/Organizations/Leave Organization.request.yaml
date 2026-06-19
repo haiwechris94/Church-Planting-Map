@@ -1,0 +1,10 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/api/organizations/{{organizationId}}/leave'
+order: 10000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+pathVariables:
+  - key: organizationId
+    value: '{{organizationId}}'

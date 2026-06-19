@@ -1,0 +1,4 @@
+$kind: collection
+name: Countries
+description: Country configuration and statistics for supported African countries.
+order: 17000

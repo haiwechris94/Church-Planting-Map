@@ -1,0 +1,39 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/activities'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: type
+    value: visit
+    disabled: true
+  - key: village
+    value: '{{villageId}}'
+    disabled: true
+  - key: church
+    value: '{{churchId}}'
+    disabled: true
+  - key: user
+    value: '{{userId}}'
+    disabled: true
+  - key: startDate
+    value: '2024-01-01'
+    disabled: true
+  - key: endDate
+    value: '2024-12-31'
+    disabled: true
+  - key: limit
+    value: '50'
+    disabled: true
+  - key: skip
+    value: '0'
+    disabled: true
+  - key: sort
+    value: '-date'
+    disabled: true
+  - key: search
+    value: training
+    disabled: true

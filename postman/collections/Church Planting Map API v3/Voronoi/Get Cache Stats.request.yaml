@@ -1,0 +1,7 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/voronoi/cache/stats'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'

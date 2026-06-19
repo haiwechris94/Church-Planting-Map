@@ -1,0 +1,4 @@
+$kind: collection
+name: Dashboard
+description: 'KPI summary, status distribution, coverage gauge, and hierarchical drill-down data.'
+order: 14000

@@ -1,0 +1,19 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/voronoi'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{token}}'
+    disabled: true
+queryParams:
+  - key: country
+    value: '{{countryCode}}'
+  - key: level
+    value: '1'
+    description: Admin level (1=region, 2=department, 3=subdivision)
+    disabled: true
+  - key: bbox
+    value: ''
+    description: 'Bounding box: west,south,east,north'
+    disabled: true
