@@ -30,13 +30,14 @@ import ResetPassword from './pages/ResetPassword'
 // ============================================================================
 
 // Dashboard components - loaded after authentication
-const Dashboard = lazy(() => import('./pages/Dashboard'))
 const DashboardEnhanced = lazy(() => import('./pages/DashboardEnhanced'))
+const AnalyticsTablePage = lazy(() => import('./pages/AnalyticsTablePage'))
 
 // Map components - HEAVY (~1600 lines each) - loaded only when navigating to map
 const MapView = lazy(() => import('./pages/MapView'))
 const GeoJSONMapView = lazy(() => import('./pages/GeoJSONMapView'))
 const VoronoiMapPage = lazy(() => import('./pages/VoronoiMapPage'))
+const UnifiedMapView = lazy(() => import('./pages/UnifiedMapView'))
 
 // Secondary pages - loaded on demand
 const Activities = lazy(() => import('./pages/Activities'))
@@ -47,6 +48,10 @@ const DataManagement = lazy(() => import('./pages/DataManagement'))
 const PendingValidations = lazy(() => import('./pages/PendingValidations'))
 const RejectedPeopleGroups = lazy(() => import('./pages/RejectedPeopleGroups'))
 const AnalyseQualitative = lazy(() => import('./pages/AnalyseQualitative'))
+
+// DMM pillars — nouvelles pages
+const CoachingIgrow = lazy(() => import('./pages/CoachingIgrow'))
+const DmmReporting = lazy(() => import('./pages/DmmReporting'))
 
 // Admin pages - lazy loaded, admin-only access
 const AdminUsers = lazy(() => import('./pages/AdminUsers'))
@@ -181,9 +186,9 @@ function App() {
               <DashboardEnhanced />
             </Suspense>
           } />
-          <Route path="dashboard-old" element={
+          <Route path="analytics-table" element={
             <Suspense fallback={<CompactLoader />}>
-              <Dashboard />
+              <AnalyticsTablePage />
             </Suspense>
           } />
           
@@ -192,6 +197,13 @@ function App() {
             <ErrorBoundary fallbackMessage="Erreur lors du chargement de la carte. Vérifiez votre connexion.">
               <Suspense fallback={<CompactLoader />}>
                 <MapView />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="unified-map" element={
+            <ErrorBoundary fallbackMessage="Erreur lors du chargement de la carte unifiee.">
+              <Suspense fallback={<CompactLoader />}>
+                <UnifiedMapView />
               </Suspense>
             </ErrorBoundary>
           } />
@@ -223,6 +235,17 @@ function App() {
           <Route path="analyse-qualitative" element={
             <Suspense fallback={<CompactLoader />}>
               <AnalyseQualitative />
+            </Suspense>
+          } />
+          {/* DMM pillars — coaching iGROW, groupes DBS, reporting */}
+          <Route path="coaching-igrow" element={
+            <Suspense fallback={<CompactLoader />}>
+              <CoachingIgrow />
+            </Suspense>
+          } />
+          <Route path="dmm-reporting" element={
+            <Suspense fallback={<CompactLoader />}>
+              <DmmReporting />
             </Suspense>
           } />
           <Route path="data-management" element={

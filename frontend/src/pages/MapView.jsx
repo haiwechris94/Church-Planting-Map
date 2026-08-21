@@ -64,6 +64,26 @@ const createCustomIcon = (color, sourceType = 'dmm') => {
       popupAnchor: [0, -10],
     })
   }
+  if (sourceType === 'imb') {
+    // IMB / PeopleGroups.org markers: circle, emerald
+    return L.divIcon({
+      className: 'custom-marker imb-marker',
+      html: `<div style="background-color: ${color}; width: 9px; height: 9px; border-radius: 50%; border: 1px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.4);"></div>`,
+      iconSize: [10, 10],
+      iconAnchor: [5, 10],
+      popupAnchor: [0, -10],
+    })
+  }
+  if (sourceType === 'ftt') {
+    // Finishing the Task markers: rotated square, violet
+    return L.divIcon({
+      className: 'custom-marker ftt-marker',
+      html: `<div style="background-color: ${color}; width: 9px; height: 9px; transform: rotate(45deg); border: 1px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.4);"></div>`,
+      iconSize: [10, 10],
+      iconAnchor: [5, 10],
+      popupAnchor: [0, -10],
+    })
+  }
   // DMM data markers: teardrop shape - reduced size by 50% (10x10)
   return L.divIcon({
     className: 'custom-marker',
@@ -127,6 +147,12 @@ const getMarkerIcon = (engagementStatus, source, mapMode = 'terrain', population
       })
     }
     return jpEngagementStatusIcons[engagementStatus] || jpEngagementStatusIcons.pioneer
+  }
+  if (source === 'PeopleGroups.org') {
+    return createCustomIcon('#10b981', 'imb')
+  }
+  if (source === 'Finishing the Task') {
+    return createCustomIcon('#8b5cf6', 'ftt')
   }
   if (source === 'Survey') {
     return surveyEngagementStatusIcons[engagementStatus] || surveyEngagementStatusIcons.pioneer
@@ -272,6 +298,14 @@ const EngagementStatusLegend = () => {
               <div className="flex items-center gap-2 text-xs">
                 <span className="w-3 h-3 rotate-45 bg-amber-500 flex-shrink-0"></span>
                 <span className="text-gray-700">Joshua Project (losange)</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="w-3 h-3 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                <span className="text-gray-700">IMB / PeopleGroups.org (cercle)</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="w-3 h-3 rotate-45 bg-violet-500 flex-shrink-0"></span>
+                <span className="text-gray-700">Finishing the Task (carré)</span>
               </div>
             </div>
           </div>
@@ -1305,116 +1339,6 @@ const CoverageLegend = ({ visible }) => {
   )
 }
 
-// ── MBB Radar Layer ───────────────────────────────────────────────────────────
-// Couche carte qui affiche les peuples avec des croyants d'origine musulmane
-// (Muslim Background Believers). Visible uniquement en mode Stratégique.
-const MBBRadarLayer = ({ visible }) => {
-  const [data, setData] = React.useState(null)
-  const [loading, setLoading] = React.useState(false)
-
-  React.useEffect(() => {
-    if (!visible || data) return
-    setLoading(true)
-    const token = localStorage.getItem('token')
-    fetch('/api/analytics/mbb-radar', {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
-      .then(r => r.json())
-      .then(res => { setData(res); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [visible])
-
-  if (!visible || !data?.peoples?.length) return null
-
-  const maxMBB = Math.max(...data.peoples.map(p => p.mbbCount))
-
-  return (
-    <>
-      {data.peoples.map((p, i) => {
-        const [lng, lat] = p.coordinates
-        if (!lat || !lng) return null
-
-        // Rayon proportionnel au nombre de MBB (min 8px, max 40px)
-        const ratio  = maxMBB > 0 ? p.mbbCount / maxMBB : 0
-        const radius = Math.round(8 + ratio * 32)
-
-        // Couleur : rouge vif si Frontier, orange si LeastReached, rouge standard sinon
-        const color = p.frontier ? '#dc2626' : '#f97316'
-
-        return (
-          <CircleMarker
-            key={`mbb-${i}`}
-            center={[lat, lng]}
-            radius={radius}
-            pathOptions={{
-              color:       color,
-              fillColor:   color,
-              fillOpacity: 0.35,
-              weight:      2,
-              opacity:     0.85,
-            }}
-          >
-            <Popup>
-              <div className="min-w-[200px]">
-                {/* Header */}
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-bold text-sm leading-tight">{p.name}</h3>
-                  <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded-full border border-red-200 flex-shrink-0">
-                    MBB
-                  </span>
-                </div>
-
-                <p className="text-xs text-gray-500 mb-2">📍 {p.country}</p>
-
-                {/* MBB stat — chiffre principal */}
-                <div className="bg-red-50 rounded-lg p-2 mb-2 text-center border border-red-100">
-                  <p className="text-2xl font-black text-red-700">{p.mbbCount}</p>
-                  <p className="text-[10px] text-red-500 font-medium">Croyants d'origine musulmane</p>
-                  {p.mbPercent > 0 && (
-                    <p className="text-xs text-red-600 font-semibold mt-0.5">{p.mbPercent}% du groupe</p>
-                  )}
-                </div>
-
-                {/* Badges */}
-                <div className="flex gap-1 flex-wrap mb-2">
-                  {p.frontier && (
-                    <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded-full border border-red-200">
-                      🔴 Frontier
-                    </span>
-                  )}
-                  {p.calculatedStatus && (
-                    <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded-full border ${
-                      p.calculatedStatus === 'dmm'           ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-                      p.calculatedStatus === 'tipping-point' ? 'bg-green-100 text-green-700 border-green-200' :
-                      p.calculatedStatus === 'midway'        ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-                      p.calculatedStatus === 'pioneer'       ? 'bg-orange-100 text-orange-700 border-orange-200' :
-                                                               'bg-red-100 text-red-600 border-red-200'
-                    }`}>
-                      {p.calculatedStatus}
-                    </span>
-                  )}
-                </div>
-
-                {/* Métriques secondaires */}
-                <div className="grid grid-cols-2 gap-1 text-xs text-gray-600">
-                  {p.totalChurches  > 0 && <span>⛪ {p.totalChurches} églises</span>}
-                  {p.newDisciples   > 0 && <span>👥 {p.newDisciples} disciples</span>}
-                  {p.jpScale            && <span>📊 JP Scale {p.jpScale}/5</span>}
-                </div>
-
-                {/* Trimestre */}
-                <p className="text-[10px] text-gray-400 mt-2 border-t border-gray-100 pt-1">
-                  Données : {data.quarter}
-                </p>
-              </div>
-            </Popup>
-          </CircleMarker>
-        )
-      })}
-    </>
-  )
-}
-
 // ── Activity Heatmap Layer ────────────────────────────────────────────────────
 // Couche carte qui affiche une heatmap de l'activité DMM (disciples, églises,
 // rapports récents) par peuple. Visible uniquement en mode Stratégique.
@@ -1821,8 +1745,9 @@ const MapView = () => {
   const [showJoshuaProject, setShowJoshuaProject] = useState(true)
   const [showDMMData, setShowDMMData] = useState(true)
   const [showSurveyData, setShowSurveyData] = useState(true)
+  const [showIMB, setShowIMB] = useState(true)
+  const [showFTT, setShowFTT] = useState(true)
   const [mapMode, setMapMode] = useState('terrain') // 'terrain' | 'strategic' | 'coverage'
-  const [showMBBRadar, setShowMBBRadar] = useState(false)
   const [showProximityAlert, setShowProximityAlert] = useState(false)
   const [showHeatmap, setShowHeatmap] = useState(false)
   const [showCorridor, setShowCorridor] = useState(false)
@@ -1845,8 +1770,8 @@ const MapView = () => {
   useEffect(() => {
     if (mapMode === 'strategic') {
       setShowJoshuaProject(true)
-    } else {
-      setShowMBBRadar(false)
+      setShowIMB(true)
+      setShowFTT(true)
     }
   }, [mapMode])
 
@@ -2386,10 +2311,14 @@ const MapView = () => {
     // This is separate from engagementStatus which can be 'dmm' for any source
     const isJoshuaProject = people.source === 'Joshua Project'
     const isSurvey = people.source === 'Survey'
+    const isIMB = people.source === 'PeopleGroups.org'
+    const isFTT = people.source === 'Finishing the Task'
     const isDMM = !people.source || people.source === 'DMM' || people.source === 'manual'
     
     if (isJoshuaProject && !showJoshuaProject) return false
     if (isSurvey && !showSurveyData) return false
+    if (isIMB && !showIMB) return false
+    if (isFTT && !showFTT) return false
     if (isDMM && !showDMMData) return false
 
     // Filter by search term
@@ -2418,6 +2347,8 @@ const MapView = () => {
     // Data source specific stats
     joshuaProject: filteredPeoples.filter(p => p.source === 'Joshua Project').length,
     surveySource: filteredPeoples.filter(p => p.source === 'Survey').length,
+    imbSource: filteredPeoples.filter(p => p.source === 'PeopleGroups.org').length,
+    fttSource: filteredPeoples.filter(p => p.source === 'Finishing the Task').length,
     dmmSource: filteredPeoples.filter(p => !p.source || p.source === 'DMM' || p.source === 'manual').length,
   }
 
@@ -2566,6 +2497,18 @@ const MapView = () => {
                       <span className="flex-1">Joshua Project</span>
                       {showJoshuaProject && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 ml-auto">actif</span>}
                     </button>
+                    <button onClick={() => setShowIMB(!showIMB)}
+                      className={`lbtn ${showIMB ? 'on text-emerald-700 bg-emerald-50' : ''}`}>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
+                      <span className="flex-1">IMB / PeopleGroups.org</span>
+                      {showIMB && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 ml-auto">actif</span>}
+                    </button>
+                    <button onClick={() => setShowFTT(!showFTT)}
+                      className={`lbtn ${showFTT ? 'on text-violet-700 bg-violet-50' : ''}`}>
+                      <span className="w-2 h-2 rounded-full bg-violet-400 flex-shrink-0" />
+                      <span className="flex-1">Finishing the Task</span>
+                      {showFTT && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700 ml-auto">actif</span>}
+                    </button>
                   </>
                 )}
 
@@ -2573,12 +2516,6 @@ const MapView = () => {
                 {mapMode === 'strategic' && (
                   <>
                     <span className="slabel">Analyses</span>
-                    <button onClick={() => setShowMBBRadar(!showMBBRadar)}
-                      className={`lbtn ${showMBBRadar ? 'on text-red-700 bg-red-50' : ''}`}>
-                      <span className="text-[11px]">🔴</span>
-                      <span className="flex-1">MBB Radar</span>
-                      {showMBBRadar && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-red-100 text-red-700 ml-auto">actif</span>}
-                    </button>
                     <button onClick={() => setShowHeatmap(!showHeatmap)}
                       className={`lbtn ${showHeatmap ? 'on text-orange-700 bg-orange-50' : ''}`}>
                       <span className="text-[11px]">🔥</span>
@@ -2771,9 +2708,6 @@ const MapView = () => {
               peoples={filteredPeoples}
             />
 
-            {/* MBB Radar Layer — mode stratégique uniquement */}
-            <MBBRadarLayer visible={mapMode === 'strategic' && showMBBRadar} />
-
             {/* Activity Heatmap Layer — mode stratégique uniquement */}
             <ActivityHeatmapLayer visible={mapMode === 'strategic' && showHeatmap} />
 
@@ -2859,11 +2793,15 @@ const MapView = () => {
               dmm: showDMMData,
               survey: showSurveyData,
               joshuaProject: showJoshuaProject,
+              imb: showIMB,
+              ftt: showFTT,
             }}
             onSourceToggle={(stateKey) => {
               if (stateKey === 'dmm') setShowDMMData(v => !v)
               else if (stateKey === 'survey') setShowSurveyData(v => !v)
               else if (stateKey === 'joshuaProject') setShowJoshuaProject(v => !v)
+              else if (stateKey === 'imb') setShowIMB(v => !v)
+              else if (stateKey === 'ftt') setShowFTT(v => !v)
             }}
             country={selectedCountries[0] || ''}
             onCountryChange={(code) => setSelectedCountries(code ? [code] : [])}
@@ -2873,6 +2811,8 @@ const MapView = () => {
               setShowDMMData(true)
               setShowSurveyData(true)
               setShowJoshuaProject(true)
+              setShowIMB(true)
+              setShowFTT(true)
               setSelectedCountries([])
             }}
           />

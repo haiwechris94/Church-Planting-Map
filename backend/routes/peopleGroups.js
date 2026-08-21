@@ -86,6 +86,43 @@ function countGeoJSONPoints(geometry) {
 }
 
 /**
+ * Normalize a GeoJSON Point-like value into a valid { type: 'Point', coordinates: [lng, lat] } object.
+ * Accepts JSON strings, raw coordinate arrays, and already-shaped objects.
+ * Returns null when the value cannot be safely normalized.
+ */
+function normalizePointLocation(location) {
+  if (!location) return null;
+
+  let value = location;
+  if (typeof value === 'string') {
+    try {
+      value = JSON.parse(value);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  if (Array.isArray(value)) {
+    if (value.length !== 2) return null;
+    const lng = Number(value[0]);
+    const lat = Number(value[1]);
+    if (Number.isNaN(lng) || Number.isNaN(lat)) return null;
+    return { type: 'Point', coordinates: [lng, lat] };
+  }
+
+  if (value && typeof value === 'object') {
+    const coords = value.coordinates;
+    if (!Array.isArray(coords) || coords.length !== 2) return null;
+    const lng = Number(coords[0]);
+    const lat = Number(coords[1]);
+    if (Number.isNaN(lng) || Number.isNaN(lat)) return null;
+    return { type: 'Point', coordinates: [lng, lat] };
+  }
+
+  return null;
+}
+
+/**
  * Simplify a GeoJSON polygon using Douglas-Peucker algorithm
  * @param {Object} polygon - GeoJSON Polygon or MultiPolygon
  * @param {number} tolerance - Simplification tolerance (higher = more simplification)
@@ -696,6 +733,7 @@ router.get('/', optionalAuth, async (req, res) => {
       village,
       search, 
       approved,
+      source,
       region,
       country,
       countryCode,
@@ -865,6 +903,16 @@ router.get('/', optionalAuth, async (req, res) => {
     }
     // NOTE: If no approved param is passed, we do NOT filter by approved status
     // This ensures all people groups are returned regardless of approval status
+
+    // ============================================
+    // 5b. SOURCE FILTER (Query-param based)
+    // ============================================
+    // Allow filtering by data source (e.g. 'Joshua Project', 'PeopleGroups.org',
+    // 'Finishing the Task', 'Survey', 'DMM'). Values are case-sensitive and must
+    // match the stored `source` field exactly. 'all' (or empty) means no filter.
+    if (source && typeof source === 'string' && source.trim() && source !== 'all') {
+      query.source = source.trim();
+    }
     
     // ============================================
     // 6. GEOGRAPHIC FILTERS (with validation)
@@ -1009,7 +1057,11 @@ router.get('/', optionalAuth, async (req, res) => {
     const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
     const safeSortOrder = sortOrder === 'asc' ? 1 : -1;
     
-    const sort = { [safeSortBy]: safeSortOrder };
+    // Include a unique tiebreaker (_id) so skip/limit pagination is deterministic.
+    // Records sharing the same sort value (e.g. identical createdAt from a bulk
+    // import) could otherwise be duplicated or skipped across page boundaries,
+    // causing inconsistent totals between consumers (e.g. map vs dashboard).
+    const sort = { [safeSortBy]: safeSortOrder, _id: safeSortOrder };
     
     // ============================================
     // 9. EXECUTE QUERY WITH OPTIMIZATIONS
@@ -1574,20 +1626,9 @@ router.post('/', auth, isMissionary, uploadPhotos, processUploadedFiles,
       });
     }
 
-    let parsedLocationEarly;
-    try {
-      parsedLocationEarly = typeof location === 'string' ? JSON.parse(location) : location;
-    } catch (e) {
-      parsedLocationEarly = null;
-    }
+    const parsedLocationEarly = normalizePointLocation(location);
 
-    if (
-      !parsedLocationEarly ||
-      !Array.isArray(parsedLocationEarly.coordinates) ||
-      parsedLocationEarly.coordinates.length !== 2 ||
-      isNaN(parsedLocationEarly.coordinates[0]) ||
-      isNaN(parsedLocationEarly.coordinates[1])
-    ) {
+    if (!parsedLocationEarly) {
       return res.status(400).json({
         error: 'Validation failed',
         message: 'Location coordinates are required. Provide { type: "Point", coordinates: [longitude, latitude] }.',
@@ -1899,9 +1940,17 @@ router.put('/:id', auth, isMissionary,
     
     allowedUpdates.forEach(field => {
       if (req.body[field] !== undefined) {
-        peopleGroup[field] = req.body[field];
+        peopleGroup[field] = field === 'location' ? normalizePointLocation(req.body[field]) : req.body[field];
       }
     });
+
+    if (req.body.location !== undefined && !peopleGroup.location) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        message: 'Location coordinates are required. Provide { type: "Point", coordinates: [longitude, latitude] }.',
+        code: 'LOCATION_REQUIRED',
+      });
+    }
 
     // ═══════════════════════════════════════════════════════════════════════
     // DMM STATUS CALCULATION: Auto-recalculate status and level if churches or generations changed
@@ -2110,6 +2159,14 @@ router.post('/:id/approve', auth, canApprove,
       return res.status(400).json({
         error: 'Already approved',
         message: 'This people group is already approved'
+      });
+    }
+
+    if (!normalizePointLocation(peopleGroup.location)) {
+      return res.status(400).json({
+        error: 'Approval failed',
+        message: 'This people group has invalid location data and must be corrected before approval.',
+        code: 'INVALID_LOCATION',
       });
     }
 

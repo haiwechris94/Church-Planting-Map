@@ -29,7 +29,10 @@ const TopNavbar = () => {
   const baseNavItems = [
     { path: '/dashboard', label: t('nav.dashboard') || 'Dashboard', exact: true },
     { path: '/map', label: t('nav.map') || 'Carte' },
+    { path: '/unified-map', label: t('nav.unifiedMap') || 'Carte unifiée' },
     { path: '/activities', label: t('nav.activities') || 'Activités' },
+    { path: '/coaching-igrow', label: t('nav.coachingIgrow') || 'Coaching iGROW' },
+    { path: '/dmm-reporting', label: t('nav.dmmReporting') || 'Reporting DMM' },
     { path: '/analyse-qualitative', label: t('nav.analyseQualitative') || 'Analyse' },
     { path: '/data-management', label: t('nav.dataManagement') || 'Données' },
   ]

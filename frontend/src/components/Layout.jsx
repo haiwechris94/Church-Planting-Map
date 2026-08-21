@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import TopNavbar from './TopNavbar'
 
-const FULLSCREEN_ROUTES = ['/map', '/geojson-map', '/voronoi-map']
+const FULLSCREEN_ROUTES = ['/map', '/geojson-map', '/voronoi-map', '/unified-map']
 
 const Layout = () => {
   const location = useLocation()

@@ -1,6 +1,14 @@
 // Translations for English and French
 const translations = {
   en: {
+    // DMM Reporting page
+    dmmReporting: {
+      title: 'DMM Reporting',
+      subtitle: 'Cityteam numeric format — quarterly view.',
+      exportCsv: 'Export CSV',
+      downloadTemplate: 'Report template',
+      downloadTemplateTooltip: 'Download the blank quarterly report template',
+    },
     // Common
     common: {
       appName: 'Everywhere',
@@ -290,6 +298,8 @@ const translations = {
       peopleGroupStatus: 'People Groups by Status',
       villageStatusSummary: 'Village Status Summary',
       churchesUnit: 'churches',
+      ofTotal: 'of total',
+      bySource: 'People Groups by Source',
       generationAbbr: 'gen.',
       totalPeoples: 'Total peoples',
       villageCoverage: 'Village coverage',
@@ -882,6 +892,14 @@ const translations = {
   },
 
   fr: {
+    // DMM Reporting page
+    dmmReporting: {
+      title: 'Reporting DMM',
+      subtitle: 'Format numérique Cityteam — vue trimestrielle.',
+      exportCsv: 'Export CSV',
+      downloadTemplate: 'Modèle de rapport',
+      downloadTemplateTooltip: 'Télécharger le modèle vierge d\'un rapport trimestriel',
+    },
     // Common
     common: {
       appName: 'Everywhere',
@@ -1170,6 +1188,8 @@ const translations = {
       peopleGroupStatus: 'Groupes de Personnes par Statut',
       villageStatusSummary: 'Résumé du Statut des Villages',
       churchesUnit: 'églises',
+      ofTotal: 'du total',
+      bySource: 'Groupes de Personnes par Source',
       generationAbbr: 'gén.',
       totalPeoples: 'Total des peuples',
       villageCoverage: 'Couverture des villages',

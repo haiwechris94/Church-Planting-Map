@@ -1,0 +1,408 @@
+const STATUS_COLORS_FILL = {
+  'dmm':            { fill: '#15803d', stroke: '#166534', label: 'Mouvement' },
+  'tipping-point':  { fill: '#22c55e', stroke: '#16a34a', label: 'Basculement' },
+  'midway':         { fill: '#eab308', stroke: '#ca8a04', label: 'Mi-parcours' },
+  'pioneer':        { fill: '#f97316', stroke: '#ea580c', label: 'Pionnier' },
+  'unreached':      { fill: '#ef4444', stroke: '#dc2626', label: 'Non-atteint' },
+  'unknown':        { fill: '#e5e7eb', stroke: '#d1d5db', label: 'Inconnu' },
+}
+
+// É"?É"?É"? helpers É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?
+
+/** Minimal ray-casting point-in-polygon (handles a single ring). */
+function pointInRing(point, ring) {
+  const [px, py] = point
+  let inside = false
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i]
+    const [xj, yj] = ring[j]
+    const intersect =
+      (yi > py) !== (yj > py) &&
+      px < ((xj - xi) * (py - yi)) / (yj - yi) + xi
+    if (intersect) inside = !inside
+  }
+  return inside
+}
+
+function pointInFeature(lngLat, feature) {
+  const geom = feature?.geometry
+  if (!geom) return false
+  if (geom.type === 'Polygon') {
+    return pointInRing(lngLat, geom.coordinates[0])
+  }
+  if (geom.type === 'MultiPolygon') {
+    return geom.coordinates.some(poly => pointInRing(lngLat, poly[0]))
+  }
+  return false
+}
+
+const DMM_PRIORITY = ['dmm', 'tipping-point', 'midway', 'pioneer', 'unreached']
+
+/** Aggregate people into polygons (returns Map<featureIndex, info>). */
+function buildLocalCoverageMap(geojson, peoples) {
+  const result = new Map()
+  if (!geojson?.features?.length || !peoples?.length) return result
+
+  for (const person of peoples) {
+    const coords = person?.location?.coordinates
+    if (!coords || coords.length < 2) continue
+    const lngLat = [coords[0], coords[1]]
+
+    for (let i = 0; i < geojson.features.length; i++) {
+      if (!pointInFeature(lngLat, geojson.features[i])) continue
+
+      const existing = result.get(i) || {
+        status: 'unknown',
+        peopleCount: 0,
+        population: 0,
+        churches: 0,
+        peoples: [],
+      }
+      existing.peopleCount += 1
+      existing.population += person.population || 0
+      existing.churches += person.numberOfChurches || 0
+      existing.peoples.push({
+        name: person.name || 'Sans nom',
+        engagementStatus: person.engagementStatus || 'unknown',
+        source: person.source || '',
+        population: person.population || 0,
+      })
+
+      const newStatus = person.engagementStatus || 'unknown'
+      const curIdx = DMM_PRIORITY.indexOf(existing.status)
+      const newIdx = DMM_PRIORITY.indexOf(newStatus)
+      if (newIdx !== -1 && (curIdx === -1 || newIdx < curIdx)) {
+        existing.status = newStatus
+      }
+      result.set(i, existing)
+      break
+    }
+  }
+  return result
+}
+
+/** Infer admin level from GADM GID fields, or read explicit admin_level. */
+function inferAdminLevel(props = {}) {
+  if (props.admin_level != null) return Number(props.admin_level)
+  if (!props.GID_2) return 1
+  if (!props.GID_3) return 2
+  return 3
+}
+
+function adminFeatureName(props = {}) {
+  const lvl = inferAdminLevel(props)
+  if (lvl === 1) return props.NAME_1 || props.name || ''
+  if (lvl === 2) return props.NAME_2 || props.name || ''
+  return props.NAME_3 || props.name || ''
+}
+
+// É"?É"?É"? data files keyed by alpha-3 country code É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?
+const COUNTRY_DATA_FILES = {
+  CMR: { admin: '/data/Admin123CMR fusionn«∏es.geojson',  villages: '/data/Villages d«∏coup«∏s.geojson' },
+  CAF: { admin: '/data/CAF_admin123.geojson',            villages: '/data/VCAF_Polygons.geojson' },
+  TCD: { admin: '/data/TCD_admin123.geojson',            villages: '/data/VChad_polygons.geojson' },
+  GAB: { admin: '/data/GAB_admin123.geojson',            villages: '/data/VGabon_Polygons.geojson' },
+  COG: { admin: '/data/Admin123COG fusionn«∏es.geojson',  villages: '/data/VCongoBrazza_Polygons.geojson' },
+  COD: { admin: '/data/Admin123COD fusionn«∏es.geojson',  villages: null },
+  GNQ: { admin: '/data/Admin123GNQ fusionn«∏es.geojson',  villages: null },
+}
+
+// É"?É"?É"? CoverageLevelIndicator (rendered via portal) É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?
+const LEVEL_BADGE_COLORS = {
+  village:        'bg-blue-100 text-blue-700 border-blue-300',
+  arrondissement: 'bg-violet-100 text-violet-700 border-violet-300',
+  departement:    'bg-emerald-100 text-emerald-700 border-emerald-300',
+  region:         'bg-amber-100 text-amber-700 border-amber-300',
+}
+
+const CoverageLevelIndicator = ({ level, zoom }) => {
+  if (!level) return null
+  const cfg = VORONOI_ZOOM_CONFIG[level]
+  if (!cfg) return null
+  const colors = LEVEL_BADGE_COLORS[level] || 'bg-gray-100 text-gray-700 border-gray-300'
+  return createPortal(
+    <div
+      className={`fixed bottom-20 left-1/2 -translate-x-1/2 z-[1100] flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-md pointer-events-none select-none ${colors}`}
+    >
+      <span>{cfg.label}</span>
+      <span className="opacity-60 font-normal">zoom {zoom}</span>
+    </div>,
+    document.body,
+  )
+}
+
+// É"?É"?É"? CoverageLayer (zoom-aware) É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?
+const CoverageLayer = ({ visible, countryCode, peoples }) => {
+  const map = useMap()
+
+  // Resolve alpha-2 É≈' alpha-3 for the data file map.
+  const code3 = React.useMemo(() => {
+    if (!countryCode) return null
+    const upper = countryCode.toUpperCase()
+    if (upper.length === 3) return upper
+    const cfg = getCountryConfig(upper)
+    return cfg?.code3 || cfg?.code || null
+  }, [countryCode])
+
+  const files = code3 ? COUNTRY_DATA_FILES[code3] : null
+
+  // É"?É"? state É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?
+  const [zoom, setZoom]               = React.useState(() => map.getZoom())
+  const [adminData, setAdminData]     = React.useState(null)
+  const [villageData, setVillageData] = React.useState(null)
+  const [voronoiData, setVoronoiData] = React.useState(null)
+  const [coverageMap, setCoverageMap] = React.useState(null) // backend (CMR voronoi)
+  const [loading, setLoading]         = React.useState(false)
+  const [error, setError]             = React.useState(null)
+
+  const layerRef = React.useRef(null)
+
+  // Track zoom changes
+  useMapEvents({
+    zoomend() { setZoom(map.getZoom()) },
+  })
+
+  const level = getVoronoiLevelForZoom(zoom)
+
+  // É"?É"? data loading É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?
+  React.useEffect(() => {
+    if (!visible) return
+    setLoading(true)
+    setError(null)
+
+    const token = localStorage.getItem('token')
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const coverageUrl = `/api/analytics/coverage-voronoi${countryCode ? `?countryCode=${countryCode}` : ''}`
+
+    const tasks = [
+      fetch('/data/voronoi.geojson')
+        .then(r => (r.ok ? r.json() : null))
+        .catch(() => null),
+      fetch(coverageUrl, { headers })
+        .then(r => (r.ok ? r.json() : { coverageMap: {} }))
+        .catch(() => ({ coverageMap: {} })),
+      files?.admin
+        ? fetch(files.admin).then(r => (r.ok ? r.json() : null)).catch(() => null)
+        : Promise.resolve(null),
+      files?.villages
+        ? fetch(files.villages).then(r => (r.ok ? r.json() : null)).catch(() => null)
+        : Promise.resolve(null),
+    ]
+
+    let cancelled = false
+    Promise.all(tasks)
+      .then(([voronoi, coverage, admin, villages]) => {
+        if (cancelled) return
+        setVoronoiData(voronoi)
+        setCoverageMap(coverage?.coverageMap || {})
+        setAdminData(admin)
+        setVillageData(villages)
+        setLoading(false)
+      })
+      .catch(err => {
+        if (cancelled) return
+        setError(err.message)
+        setLoading(false)
+      })
+
+    return () => { cancelled = true }
+  }, [visible, countryCode, files?.admin, files?.villages])
+
+  // É"?É"? pick the dataset that matches the current zoom level É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?
+  const { activeData, nameKey, useApiCoverage } = React.useMemo(() => {
+    if (!visible) return { activeData: null, nameKey: null, useApiCoverage: false }
+
+    if (level === 'village') {
+      if (villageData?.features?.length) {
+        return { activeData: villageData, nameKey: 'name', useApiCoverage: false }
+      }
+      // Fallback to the small CMR-only voronoi tied to the backend coverage map
+      return { activeData: voronoiData, nameKey: 'village_name', useApiCoverage: true }
+    }
+
+    if (!adminData?.features?.length) {
+      return { activeData: null, nameKey: null, useApiCoverage: false }
+    }
+
+    const targetLvl = level === 'arrondissement' ? 3
+                    : level === 'departement'    ? 2
+                    : 1 // region
+    const features = adminData.features.filter(
+      f => inferAdminLevel(f.properties) === targetLvl,
+    )
+    // Fall back to the highest available level if requested level is empty
+    // (e.g. CAF/COG/COD/GNQ have no level 3).
+    const safeFeatures = features.length
+      ? features
+      : adminData.features.filter(f => inferAdminLevel(f.properties) === 1)
+
+    return {
+      activeData: { type: 'FeatureCollection', features: safeFeatures },
+      nameKey: null, // use adminFeatureName()
+      useApiCoverage: false,
+    }
+  }, [visible, level, adminData, villageData, voronoiData])
+
+  // Local coverage aggregation (used whenever we are NOT relying on the API)
+  const localCoverage = React.useMemo(() => {
+    if (useApiCoverage || !activeData) return null
+    return buildLocalCoverageMap(activeData, peoples || [])
+  }, [useApiCoverage, activeData, peoples])
+
+  // É"?É"? style helper É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?
+  const styleFeature = React.useCallback(
+    (feature, idx) => {
+      let info
+      if (useApiCoverage && coverageMap) {
+        const name = feature.properties?.[nameKey] || ''
+        info = coverageMap[name] || coverageMap[String(name).toLowerCase().trim()]
+      } else if (localCoverage) {
+        info = localCoverage.get(idx)
+      }
+      const status = info?.status || 'unknown'
+      const cfg    = STATUS_COLORS_FILL[status] || STATUS_COLORS_FILL.unknown
+      return {
+        fillColor:   cfg.fill,
+        fillOpacity: status === 'unknown' ? 0.08 : 0.35,
+        color:       '#000000',
+        weight:      status === 'unknown' ? 0.5 : 1,
+        opacity:     status === 'unknown' ? 0.5 : 0.9,
+      }
+    },
+    [useApiCoverage, coverageMap, localCoverage, nameKey],
+  )
+
+  // É"?É"? imperative Leaflet layer (avoids GeoJSON re-mount issues on zoom) É"?É"?
+  React.useEffect(() => {
+    if (!map) return
+
+    if (layerRef.current) {
+      layerRef.current.remove()
+      layerRef.current = null
+    }
+    if (!visible || !activeData?.features?.length) return
+
+    const feats = activeData.features
+
+    const layer = L.geoJSON(activeData, {
+      style: feature => styleFeature(feature, feats.indexOf(feature)),
+      onEachFeature: (feature, lyr) => {
+        const idx   = feats.indexOf(feature)
+        const props = feature.properties || {}
+        const name  = nameKey
+          ? (props[nameKey] || 'Inconnu')
+          : (adminFeatureName(props) || 'Inconnu')
+
+        let info
+        if (useApiCoverage && coverageMap) {
+          info = coverageMap[name] || coverageMap[String(name).toLowerCase().trim()]
+        } else if (localCoverage) {
+          info = localCoverage.get(idx)
+        }
+
+        const status = info?.status || 'unknown'
+        const cfg    = STATUS_COLORS_FILL[status] || STATUS_COLORS_FILL.unknown
+
+        lyr.bindPopup(
+          `<div style="min-width:180px;font-family:inherit">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <div style="width:12px;height:12px;border-radius:50%;background:${cfg.fill};flex-shrink:0"></div>
+              <strong style="font-size:14px">${name}</strong>
+            </div>
+            <div style="display:inline-flex;align-items:center;gap:4px;background:${cfg.fill}22;border:1px solid ${cfg.fill}66;border-radius:99px;padding:2px 10px;font-size:11px;font-weight:600;color:${cfg.fill}">
+              ${cfg.label}
+            </div>
+            ${info ? `
+              <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:12px;color:#374151">
+                <span>–Y'æ ${info.peopleCount} peuple${info.peopleCount > 1 ? 's' : ''}</span>
+                ${info.churches ? `<span>É>¶ ${info.churches} «∏glises</span>` : ''}
+                ${info.population ? `<span>Pop: ${info.population.toLocaleString('fr-FR')}</span>` : ''}
+              </div>
+              ${info.peoples && info.peoples.length ? `
+                <div style="margin-top:8px;padding-top:6px;border-top:1px solid #e5e7eb;max-height:160px;overflow-y:auto;">
+                  <p style="font-weight:600;font-size:11px;color:#374151;margin-bottom:4px;">Peuples:</p>
+                  <div style="display:flex;flex-direction:column;gap:3px;">
+                    ${info.peoples.slice(0, 20).map(p => {
+                      const pCfg = STATUS_COLORS_FILL[p.engagementStatus] || STATUS_COLORS_FILL.unknown
+                      return `
+                        <div style="display:flex;align-items:center;gap:6px;font-size:11px;line-height:1.2;">
+                          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background-color:${pCfg.fill};flex-shrink:0;"></span>
+                          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#374151;" title="${p.name}">${p.name}</span>
+                          ${p.source === 'Joshua Project' ? '<span style="font-size:9px;color:#6b7280;">JP</span>' : ''}
+                        </div>
+                      `
+                    }).join('')}
+                    ${info.peoples.length > 20 ? `<p style="font-size:10px;color:#6b7280;margin-top:2px;">... et ${info.peoples.length - 20} autres</p>` : ''}
+                  </div>
+                </div>
+              ` : ''}
+              ` : `
+              <p style="margin-top:6px;font-size:11px;color:#9ca3af;font-style:italic">
+                Aucun peuple DMM enregistr«∏ dans cette zone
+              </p>`}
+          </div>`,
+          { maxWidth: 300 },
+        )
+
+        lyr.on({
+          mouseover: (e) => {
+            e.target.setStyle({ fillOpacity: 0.6, weight: 1.5 })
+            e.target.bringToFront()
+          },
+          mouseout: (e) => {
+            e.target.setStyle(styleFeature(feature, idx))
+          },
+        })
+      },
+    })
+
+    layer.addTo(map)
+    layerRef.current = layer
+
+    return () => {
+      if (layerRef.current) {
+        layerRef.current.remove()
+        layerRef.current = null
+      }
+    }
+  }, [map, visible, activeData, styleFeature, useApiCoverage, coverageMap, localCoverage, nameKey])
+
+  if (!visible) return null
+
+  return (
+    <>
+      {loading && createPortal(
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[1002] bg-white rounded-full shadow-lg px-4 py-2 text-xs font-medium text-gray-600 flex items-center gap-2 pointer-events-none">
+          <Loader2 size={14} className="animate-spin text-teal-600" />
+          Chargement des zones de couvertureÉ?›
+        </div>,
+        document.body,
+      )}
+      {!loading && !error && (
+        <CoverageLevelIndicator level={level} zoom={zoom} />
+      )}
+    </>
+  )
+}
+
+// É"?É"? L«∏gende Mode Couverture É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?É"?
+const CoverageLegend = ({ visible }) => {
+  if (!visible) return null
+  return (
+    <div className="absolute bottom-48 right-4 z-[1001] bg-white rounded-xl shadow-lg p-3 border border-gray-200">
+      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-2">Couverture DMM</p>
+      {Object.entries(STATUS_COLORS_FILL)
+        .filter(([k]) => k !== 'unknown')
+        .map(([status, cfg]) => (
+          <div key={status} className="flex items-center gap-2 mb-1.5">
+            <div className="w-4 h-3 rounded-sm flex-shrink-0" style={{ background: cfg.fill, opacity: 0.8 }} />
+            <span className="text-xs text-gray-600">{cfg.label}</span>
+          </div>
+        ))}
+      <div className="flex items-center gap-2 mt-1 pt-1 border-t border-gray-100">
+        <div className="w-4 h-3 rounded-sm flex-shrink-0 bg-gray-200" />
+        <span className="text-xs text-gray-400">Non renseign«∏</span>
+      </div>
+    </div>
+  )
+}

@@ -13,10 +13,12 @@ import {
 import {
   Sparkles, TrendingUp, TrendingDown, MapPin, Users, Activity,
   RefreshCw, ChevronRight, Zap, Globe, BarChart2, Heart, Download,
-  Home, Target, BarChart3, Calendar, Church, Award, ArrowUp, ArrowDown,
+  Home, Target, BarChart3, Calendar, Church, Award, ArrowUp, ArrowDown, Flag, Search,
 } from 'lucide-react'
 import axios from 'axios'
-import { statsApi, villagesApi, activitiesApi, peopleGroupsApi, dashboardApi, quarterlyApi } from '../../services/api'
+import { statsApi, villagesApi, activitiesApi, peopleGroupsApi, dashboardApi } from '../../services/api'
+import SourceDonutChart from './SourceDonutChart'
+import DmmReportingSummary from './DmmReportingSummary'
 import { useLanguage } from '../../i18n'
 import { initSocket, getSocket, subscribeToPeopleGroupUpdates, subscribeToVillageStatusUpdates } from '../../services/socket'
 import { format } from 'date-fns'
@@ -264,9 +266,9 @@ const MonthlyActivityChart = () => {
 // ════════════════════════════════════════════════════════════════════════════
 // WIDGET 3 — Progress Metrics (Reached / Unreached)
 // ════════════════════════════════════════════════════════════════════════════
-const MetricMiniCard = ({ title, endpoint, icon: Icon, color, positive = true }) => {
+const MetricMiniCard = ({ title, endpoint, icon: Icon, color, positive = true, queryKeySuffix }) => {
   const { data, isLoading } = useQuery({
-    queryKey: ['analytics-metric', endpoint],
+    queryKey: ['analytics-metric', queryKeySuffix || endpoint],
     queryFn: () => api(endpoint).then(r => r.data),
     staleTime: 60000,
   })
@@ -314,14 +316,16 @@ const ProgressMetrics = () => (
   <div className="flex flex-col gap-4">
     <MetricMiniCard
       title="Reached Villages"
-      endpoint="/api/analytics/reached-villages"
+      endpoint="/api/dashboard/coverage-gauge"
+      queryKeySuffix="reached-villages"
       icon={MapPin}
       color={C.success}
       positive={true}
     />
     <MetricMiniCard
       title="Unreached Villages"
-      endpoint="/api/analytics/unreached-villages"
+      endpoint="/api/dashboard/coverage-gauge"
+      queryKeySuffix="unreached-villages"
       icon={Globe}
       color={C.danger}
       positive={false}
@@ -1109,288 +1113,6 @@ const JPCoverageWidget = () => {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// WIDGET — Quarterly Pulse
-// Stats du trimestre courant vs trimestre précédent
-// ════════════════════════════════════════════════════════════════════════════
-const QuarterlyPulse = () => {
-  const { data, isLoading } = useQuery({
-    queryKey: ['quarterly-pulse'],
-    queryFn: () => quarterlyApi.getQuarterlyPulse().then(r => r.data),
-    staleTime: 300000, // 5 min
-  })
-
-  // Couleurs statut DMM
-  const statusColors = {
-    unreached:      { bg: 'bg-red-100',     text: 'text-red-700',     label: 'Non-atteint' },
-    pioneer:        { bg: 'bg-orange-100',   text: 'text-orange-700',  label: 'Pionnier' },
-    midway:         { bg: 'bg-yellow-100',   text: 'text-yellow-700',  label: 'Mi-parcours' },
-    'tipping-point':{ bg: 'bg-green-100',    text: 'text-green-700',   label: 'Basculement' },
-    dmm:            { bg: 'bg-emerald-100',  text: 'text-emerald-800', label: 'Mouvement' },
-  }
-
-  // Composant d'une métrique avec delta
-  const Metric = ({ label, icon, metric, positive = true, highlight = false }) => {
-    if (!metric) return null
-    const hasDiff = metric.diff !== null && metric.diff !== undefined && metric.prev > 0
-    const isUp = metric.diff > 0
-    const isGood = positive ? isUp : !isUp
-
-    return (
-      <div className={`rounded-xl p-4 border transition-all ${
-        highlight
-          ? 'bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200'
-          : 'bg-white border-gray-100 hover:border-gray-200'
-      }`}>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-gray-500">{label}</span>
-          <span className={`text-gray-400 ${highlight ? 'text-indigo-400' : ''}`}>{icon}</span>
-        </div>
-        <p className={`text-2xl font-bold mb-1 ${highlight ? 'text-indigo-700' : 'text-gray-800'}`}>
-          {(metric.value || 0).toLocaleString('fr-FR')}
-        </p>
-        {hasDiff && (
-          <div className={`flex items-center gap-1 text-xs font-semibold ${
-            isGood ? 'text-emerald-600' : 'text-red-500'
-          }`}>
-            {isUp
-              ? <ArrowUp size={12} />
-              : <ArrowDown size={12} />
-            }
-            <span>{Math.abs(metric.diff).toLocaleString('fr-FR')}</span>
-            {metric.pct !== null && (
-              <span className="text-gray-400 font-normal ml-0.5">({metric.pct > 0 ? '+' : ''}{metric.pct}%)</span>
-            )}
-            <span className="text-gray-400 font-normal ml-0.5">vs {data?.previousQ}</span>
-          </div>
-        )}
-        {!hasDiff && metric.prev === 0 && data?.previousQ && (
-          <p className="text-xs text-gray-400">Premier trimestre</p>
-        )}
-      </div>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <Card className="col-span-3">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-100 flex items-center justify-center">
-            <Calendar size={20} className="text-emerald-600" />
-          </div>
-          <div>
-            <Skeleton className="h-5 w-48 mb-1" />
-            <Skeleton className="h-3 w-32" />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
-        </div>
-      </Card>
-    )
-  }
-
-  if (!data?.hasData) {
-    return (
-      <Card className="col-span-3">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-100 flex items-center justify-center">
-            <Calendar size={20} className="text-emerald-600" />
-          </div>
-          <div>
-            <h3 className="font-bold text-gray-800">Quarterly Pulse</h3>
-            <p className="text-xs text-gray-400">Rapport trimestriel DMM</p>
-          </div>
-        </div>
-        <div className="text-center py-10 text-gray-400">
-          <Calendar size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="font-medium">Aucun rapport trimestriel importé</p>
-          <p className="text-sm mt-1">Allez dans <span className="font-semibold text-emerald-600">Data Management → Rapport Trimestriel</span> pour importer votre premier fichier Excel.</p>
-        </div>
-      </Card>
-    )
-  }
-
-  const m = data.metrics
-
-  return (
-    <Card className="col-span-3">
-      {/* ── Header ── */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
-            <Calendar size={20} className="text-white" />
-          </div>
-          <div>
-            <h3 className="font-bold text-gray-800 text-base">Quarterly Pulse</h3>
-            <p className="text-xs text-gray-400">
-              <span className="font-semibold text-emerald-600">{data.currentQ}</span>
-              {data.previousQ && <span className="text-gray-400"> · vs {data.previousQ}</span>}
-              <span className="ml-2">· {m.peoples?.value} peuples</span>
-            </p>
-          </div>
-        </div>
-        {/* Badges alertes */}
-        <div className="flex gap-2">
-          {m.statusChanges?.value > 0 && (
-            <span className="flex items-center gap-1 bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full border border-amber-200">
-              <Zap size={11} /> {m.statusChanges.value} percée{m.statusChanges.value > 1 ? 's' : ''}
-            </span>
-          )}
-          {m.newPGs?.value > 0 && (
-            <span className="flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full border border-blue-200">
-              <Users size={11} /> +{m.newPGs.value} nouveaux
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* ── Métriques principales ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <Metric label="Nouvelles Églises"   icon={<Church size={16}/>}   metric={m.churches}   positive={true} highlight />
-        <Metric label="Nouveaux Disciples"  icon={<Users size={16}/>}    metric={m.disciples}  positive={true} />
-        <Metric label="Nouveaux Baptêmes"   icon={<Heart size={16}/>}    metric={m.baptisms}   positive={true} />
-        <Metric label="Croyants MBB"        icon={<Globe size={16}/>}    metric={m.mbb}        positive={true} />
-        <Metric label="Leaders en formation"icon={<Award size={16}/>}    metric={m.leaders}    positive={true} />
-        <Metric label="Coaches actifs"      icon={<Users size={16}/>}    metric={m.coaches}    positive={true} />
-        <Metric label="Églises perdues"     icon={<TrendingDown size={16}/>} metric={m.lostChurches} positive={false} />
-        <Metric label="Nouveaux peuples"    icon={<MapPin size={16}/>}   metric={m.newPGs}     positive={true} />
-      </div>
-
-      {/* ── Bas : Percées + Top Pays + MBB ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-        {/* Percées */}
-        <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
-          <h4 className="font-bold text-amber-800 text-sm mb-3 flex items-center gap-1.5">
-            <Zap size={14} className="text-amber-500" />
-            Percées — {data.currentQ}
-          </h4>
-          {data.breakthroughs?.length > 0 ? (
-            <div className="space-y-2">
-              {data.breakthroughs.map((b, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <span className="text-amber-500 text-xs">🏆</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-gray-800 truncate">{b.peopleGroupName}</p>
-                    <p className="text-[10px] text-gray-500">{b.country}</p>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                      statusColors[b['delta.previousStatus'] || b.delta?.previousStatus]?.bg || 'bg-gray-100'
-                    } ${statusColors[b['delta.previousStatus'] || b.delta?.previousStatus]?.text || 'text-gray-600'}`}>
-                      {statusColors[b['delta.previousStatus'] || b.delta?.previousStatus]?.label || b.delta?.previousStatus}
-                    </span>
-                    <ArrowUp size={10} className="text-emerald-500" />
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                      statusColors[b.calculatedStatus]?.bg || 'bg-gray-100'
-                    } ${statusColors[b.calculatedStatus]?.text || 'text-gray-600'}`}>
-                      {statusColors[b.calculatedStatus]?.label || b.calculatedStatus}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-amber-600 italic">Aucune percée détectée ce trimestre</p>
-          )}
-        </div>
-
-        {/* Top pays */}
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <h4 className="font-bold text-gray-700 text-sm mb-3 flex items-center gap-1.5">
-            <Globe size={14} className="text-indigo-400" />
-            Top pays — nouveaux disciples
-          </h4>
-          <div className="space-y-2">
-            {data.topCountries?.slice(0, 5).map((c, i) => {
-              const max = data.topCountries[0]?.disciples || 1
-              const pct = Math.round((c.disciples / max) * 100)
-              return (
-                <div key={i} className="space-y-0.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-medium text-gray-700 truncate">{c._id}</span>
-                    <span className="text-gray-500 ml-2 flex-shrink-0">{c.disciples?.toLocaleString('fr-FR')}</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-purple-500 transition-all duration-500"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* MBB Radar */}
-        <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border border-red-100">
-          <h4 className="font-bold text-red-800 text-sm mb-3 flex items-center gap-1.5">
-            <Globe size={14} className="text-red-400" />
-            MBB — Croyants d'origine musulmane
-          </h4>
-          {data.topMBB?.length > 0 ? (
-            <div className="space-y-2">
-              {data.topMBB.map((m, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                    i === 0 ? 'bg-red-500 text-white' : 'bg-red-100 text-red-700'
-                  }`}>{i + 1}</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-gray-800 truncate">{m.peopleGroupName}</p>
-                    <p className="text-[10px] text-gray-500">{m.country}</p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-sm font-bold text-red-700">{m.mbbCount}</p>
-                    {m.mbPercent > 0 && (
-                      <p className="text-[10px] text-red-500">{m.mbPercent}%</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-red-600 italic">Aucune donnée MBB ce trimestre</p>
-          )}
-        </div>
-      </div>
-
-      {/* ── Mini graphe tendance ── */}
-      {data.trend?.length > 1 && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <p className="text-xs font-semibold text-gray-500 mb-2">Tendance — {data.trend.length} derniers trimestres</p>
-          <ResponsiveContainer width="100%" height={60}>
-            <AreaChart data={data.trend} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="pulseGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor={C.success} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={C.success} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: C.muted }} />
-              <Tooltip
-                contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 2px 12px rgba(0,0,0,.1)', fontSize: 11 }}
-                formatter={(v, n) => [v?.toLocaleString('fr-FR'), n === 'disciples' ? 'Disciples' : n === 'baptisms' ? 'Baptêmes' : 'Églises']}
-              />
-              <Area type="monotone" dataKey="disciples" stroke={C.success} strokeWidth={2} fill="url(#pulseGrad)" dot={false} />
-              <Area type="monotone" dataKey="baptisms"  stroke={C.primary} strokeWidth={1.5} fill="none" dot={false} strokeDasharray="4 2" />
-            </AreaChart>
-          </ResponsiveContainer>
-          <div className="flex gap-4 mt-1">
-            <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
-              <div className="w-3 h-0.5 bg-emerald-500 rounded" />Disciples
-            </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
-              <div className="w-3 h-0.5 bg-indigo-500 rounded" style={{backgroundImage:'repeating-linear-gradient(90deg,#5B5FEF 0,#5B5FEF 4px,transparent 4px,transparent 6px)'}} />Baptêmes
-            </div>
-          </div>
-        </div>
-      )}
-    </Card>
-  )
-}
-
-// ════════════════════════════════════════════════════════════════════════════
 const EvolutionChart = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['analytics-pg-timeline'],
@@ -1508,6 +1230,11 @@ const EvolutionChart = () => {
 const AnalyticsDashboard = () => {
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [sourceFilter, setSourceFilter] = useState('all')
+  const [sortBy, setSortBy] = useState('name')
+  const [sortOrder, setSortOrder] = useState('asc')
   const { t, isFrench } = useLanguage()
   const dateLocale = isFrench ? fr : enUS
   const queryClient = useQueryClient()
@@ -1626,10 +1353,16 @@ const AnalyticsDashboard = () => {
   })
 
   const { data: peopleGroupsData } = useQuery({
-    queryKey: ['peopleGroups', 'dashboard', 'all'],
+    queryKey: ['peopleGroups', 'dashboard', 'all', search, statusFilter, sourceFilter, sortBy, sortOrder],
     queryFn: async () => {
       try {
-        const allData = await peopleGroupsApi.getAllPaginated({}, {
+        const allData = await peopleGroupsApi.getAllPaginated({
+          search,
+          status: statusFilter !== 'all' ? statusFilter : undefined,
+          source: sourceFilter !== 'all' ? sourceFilter : undefined,
+          sortBy,
+          sortOrder,
+        }, {
           onProgress: (progress) => { setPaginationProgress(progress) },
         })
         setPaginationProgress(null)
@@ -1643,10 +1376,15 @@ const AnalyticsDashboard = () => {
   })
 
   const { data: villagesData } = useQuery({
-    queryKey: ['villages'],
+    queryKey: ['villages', search, statusFilter, sortBy, sortOrder],
     queryFn: async () => {
       try {
-        const response = await villagesApi.getAll()
+        const response = await villagesApi.getAll({
+          search,
+          status: statusFilter !== 'all' ? statusFilter : undefined,
+          sortBy,
+          sortOrder,
+        })
         return response.data.villages || response.data || []
       } catch { return [] }
     },
@@ -1675,6 +1413,8 @@ const AnalyticsDashboard = () => {
     dmm: peopleGroups.filter(p => p.engagementStatus === 'dmm').length,
     totalChurches: peopleGroups.reduce((sum, p) => sum + (p.numberOfChurches || 0), 0),
     withCoordinates: peopleGroups.filter(p => p?.location?.coordinates?.length >= 2).length,
+    imbSource: peopleGroups.filter(p => p.source === 'PeopleGroups.org').length,
+    fttSource: peopleGroups.filter(p => p.source === 'Finishing the Task').length,
   }), [peopleGroups])
 
   const { peopleGroupsByCountry, countryDataList, peopleGroupsByCountryList } = useMemo(() => {
@@ -1784,6 +1524,9 @@ const AnalyticsDashboard = () => {
           Row 1: [AI Assistant (wide)] [Monthly Chart] [Progress Metrics (stacked)]
           Row 2: [Recent Activity (wide)] [DMM Growth] [Top Regions]
         */}
+        {/* Synthèse DMM (Pilier ④) — reporting Cityteam du trimestre en cours */}
+        <DmmReportingSummary />
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8 relative z-10">
 
           {/* Row 1 */}
@@ -1798,57 +1541,91 @@ const AnalyticsDashboard = () => {
 
         </div>
 
-        {/* ── Quarterly Pulse — pleine largeur ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 mb-8 relative z-10">
-          <QuarterlyPulse />
+        {/* ── People Groups by Source (IMB / FTT + Donut) ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 relative z-10">
+          {/* IMB / PeopleGroups.org */}
+          <div className="bg-white/75 backdrop-blur-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5 flex flex-col justify-between border border-white/60">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-gray-600 flex items-center gap-2">
+                <Globe size={18} className="text-emerald-600" />
+                IMB / PeopleGroups.org
+              </h3>
+              <span className="w-3 h-3 rounded-full bg-emerald-500" />
+            </div>
+            <p className="text-4xl font-bold text-emerald-600 mb-1">{peopleStats.imbSource}</p>
+            <p className="text-sm text-gray-500">
+              {peopleStats.total ? Math.round((peopleStats.imbSource / peopleStats.total) * 100) : 0}% {t('dashboard.ofTotal') || 'du total'}
+            </p>
+          </div>
+
+          {/* Finishing the Task */}
+          <div className="bg-white/75 backdrop-blur-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5 flex flex-col justify-between border border-white/60">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-gray-600 flex items-center gap-2">
+                <Flag size={18} className="text-violet-600" />
+                Finishing the Task
+              </h3>
+              <span className="w-3 h-3 rounded-full bg-violet-500" />
+            </div>
+            <p className="text-4xl font-bold text-violet-600 mb-1">{peopleStats.fttSource}</p>
+            <p className="text-sm text-gray-500">
+              {peopleStats.total ? Math.round((peopleStats.fttSource / peopleStats.total) * 100) : 0}% {t('dashboard.ofTotal') || 'du total'}
+            </p>
+          </div>
+
+          {/* Donut par source */}
+          <div className="bg-white/75 backdrop-blur-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-white/60">
+            <SourceDonutChart peopleGroups={peopleGroups} />
+          </div>
         </div>
 
-        {/* ── DMM Engagement Status Cards ── */}
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 mb-8 relative z-10">
-          <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2 drop-shadow">
-            <Target size={20} className="text-primary-600" />
-            {t('dashboard.engagementStatus') || 'DMM Engagement Status'}
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="bg-red-50 rounded-xl p-5 text-center border border-red-100 hover:border-red-200 transition-colors">
+        {/* ── DMM Engagement Status (People Groups) ── */}
+        <div className="bg-white/75 backdrop-blur-lg rounded-2xl shadow-md border border-white/60 p-5 mb-6 relative z-10">
+          <div className="flex items-center gap-3 mb-5">
+            <Target size={22} className="text-sky-600" />
+            <h2 className="text-xl font-bold text-gray-800">DMM Engagement Status (People Groups)</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="bg-red-50/80 rounded-2xl p-4 text-center border border-red-100 hover:border-red-200 transition-colors">
               <p className="text-4xl font-bold text-red-600 mb-1">{peopleStats.unreached}</p>
-              <p className="text-sm text-red-700 font-semibold">Unreached</p>
-              <p className="text-xs text-red-500 mt-2">0 {t('dashboard.churchesUnit') || 'churches'}, 0 {t('dashboard.generationAbbr') || 'gen'}</p>
+              <p className="text-base text-red-700 font-semibold">Unreached</p>
+              <p className="text-xs text-red-500 mt-2">0 churches, 0 gen.</p>
             </div>
-            <div className="bg-orange-50 rounded-xl p-5 text-center border border-orange-100 hover:border-orange-200 transition-colors">
+            <div className="bg-orange-50/80 rounded-2xl p-4 text-center border border-orange-100 hover:border-orange-200 transition-colors">
               <p className="text-4xl font-bold text-orange-600 mb-1">{peopleStats.pioneer}</p>
-              <p className="text-sm text-orange-700 font-semibold">Pioneer</p>
-              <p className="text-xs text-orange-500 mt-2">1-33 {t('dashboard.churchesUnit') || 'churches'}</p>
+              <p className="text-base text-orange-700 font-semibold">Pioneer</p>
+              <p className="text-xs text-orange-500 mt-2">1-33 churches</p>
             </div>
-            <div className="bg-yellow-50 rounded-xl p-5 text-center border border-yellow-100 hover:border-yellow-200 transition-colors">
+            <div className="bg-yellow-50/80 rounded-2xl p-4 text-center border border-yellow-100 hover:border-yellow-200 transition-colors">
               <p className="text-4xl font-bold text-yellow-600 mb-1">{peopleStats.midway}</p>
-              <p className="text-sm text-yellow-700 font-semibold">Midway</p>
-              <p className="text-xs text-yellow-500 mt-2">34-66 {t('dashboard.churchesUnit') || 'churches'}</p>
+              <p className="text-base text-yellow-700 font-semibold">Midway</p>
+              <p className="text-xs text-yellow-500 mt-2">34-66 churches</p>
             </div>
-            <div className="bg-emerald-50 rounded-xl p-5 text-center border border-emerald-100 hover:border-emerald-200 transition-colors">
+            <div className="bg-emerald-50/80 rounded-2xl p-4 text-center border border-emerald-100 hover:border-emerald-200 transition-colors">
               <p className="text-4xl font-bold text-emerald-600 mb-1">{peopleStats.tippingPoint}</p>
-              <p className="text-sm text-emerald-700 font-semibold">Tipping Point</p>
-              <p className="text-xs text-emerald-500 mt-2">67-99 {t('dashboard.churchesUnit') || 'churches'}</p>
+              <p className="text-base text-emerald-700 font-semibold">Tipping Point</p>
+              <p className="text-xs text-emerald-500 mt-2">67-99 churches</p>
             </div>
-            <div className="bg-green-50 rounded-xl p-5 text-center border border-green-100 hover:border-green-200 transition-colors">
+            <div className="bg-green-50/80 rounded-2xl p-4 text-center border border-green-100 hover:border-green-200 transition-colors">
               <p className="text-4xl font-bold text-green-700 mb-1">{peopleStats.dmm}</p>
-              <p className="text-sm text-green-800 font-semibold">DMM (Reached)</p>
-              <p className="text-xs text-green-600 mt-2">100+ {t('dashboard.churchesUnit') || 'churches'} & 4+ {t('dashboard.generationAbbr') || 'gen'}</p>
+              <p className="text-base text-green-800 font-semibold">DMM (Reached)</p>
+              <p className="text-xs text-green-600 mt-2">100+ churches & 4+ gen.</p>
             </div>
           </div>
         </div>
 
         {/* ── Village Coverage — 3 widgets ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 relative z-10">
 
           {/* WIDGET 1 — Statut des villages */}
-          <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
-            <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Home size={18} className="text-primary-600" />
+          <div className="bg-white/75 backdrop-blur-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-white/60">
+            <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <Home size={16} className="text-primary-600" />
               Statut des villages
             </h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl p-4 text-center border border-red-100 bg-red-50">
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="rounded-xl p-3.5 text-center border border-red-100 bg-red-50/80">
                 <p className="text-xs font-semibold text-red-600 mb-1">Non-atteint</p>
                 <p className="text-3xl font-bold text-red-600">
                   {kpiSummary?.villageStatusCounts?.unreached
@@ -1857,7 +1634,7 @@ const AnalyticsDashboard = () => {
                     ?? '—'}
                 </p>
               </div>
-              <div className="rounded-xl p-4 text-center border border-green-100 bg-green-50">
+              <div className="rounded-xl p-3.5 text-center border border-green-100 bg-green-50/80">
                 <p className="text-xs font-semibold text-green-700 mb-1">Mouvement</p>
                 <p className="text-3xl font-bold text-green-700">
                   {kpiSummary?.villageStatusCounts?.dmm
@@ -1866,7 +1643,7 @@ const AnalyticsDashboard = () => {
                     ?? '—'}
                 </p>
               </div>
-              <div className="rounded-xl p-4 text-center border border-yellow-100 bg-yellow-50">
+              <div className="rounded-xl p-3.5 text-center border border-yellow-100 bg-yellow-50/80">
                 <p className="text-xs font-semibold text-yellow-600 mb-1">En cours</p>
                 <p className="text-3xl font-bold text-yellow-600">
                   {kpiSummary?.villageStatusCounts
@@ -1877,7 +1654,7 @@ const AnalyticsDashboard = () => {
                 </p>
                 <p className="text-xs text-yellow-500 mt-1">avec données</p>
               </div>
-              <div className="rounded-xl p-4 text-center border border-gray-100 bg-gray-50">
+              <div className="rounded-xl p-3.5 text-center border border-gray-100 bg-gray-50/80">
                 <p className="text-xs font-semibold text-gray-500 mb-1">Sans données</p>
                 <p className="text-3xl font-bold text-gray-500">
                   {coverageGauge?.villageCoverage?.withoutData
@@ -1889,9 +1666,9 @@ const AnalyticsDashboard = () => {
           </div>
 
           {/* WIDGET 2 — Donut villages avec données DMM */}
-          <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
-            <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Target size={18} className="text-primary-600" />
+          <div className="bg-white/75 backdrop-blur-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-white/60">
+            <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <Target size={16} className="text-primary-600" />
               Villages avec données DMM
             </h3>
             {(() => {
@@ -1918,7 +1695,7 @@ const AnalyticsDashboard = () => {
               const total = raw?.reduce((s, d) => s + (d.count || 0), 0) || 0
               if (!raw || raw.length === 0) {
                 return (
-                  <div className="flex items-center justify-center h-40 text-gray-400 text-sm">
+                  <div className="flex items-center justify-center h-36 text-gray-400 text-sm">
                     Aucune donnée disponible
                   </div>
                 )
@@ -1926,14 +1703,14 @@ const AnalyticsDashboard = () => {
               return (
                 <>
                   <div className="relative">
-                    <ResponsiveContainer width="100%" height={180}>
+                    <ResponsiveContainer width="100%" height={160}>
                       <PieChart>
                         <Pie
                           data={raw}
                           cx="50%"
                           cy="50%"
-                          innerRadius={50}
-                          outerRadius={80}
+                          innerRadius={44}
+                          outerRadius={68}
                           paddingAngle={3}
                           dataKey="count"
                         >
@@ -1954,7 +1731,7 @@ const AnalyticsDashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-1.5 mt-2">
+                  <div className="space-y-1 mt-2">
                     {raw.filter(d => d.count > 0).map((item, i) => (
                       <div key={i} className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
@@ -1971,9 +1748,9 @@ const AnalyticsDashboard = () => {
           </div>
 
           {/* WIDGET 3 — Gauge couverture villages */}
-          <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
-            <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <BarChart3 size={18} className="text-primary-600" />
+          <div className="bg-white/75 backdrop-blur-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-white/60">
+            <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <BarChart3 size={16} className="text-primary-600" />
               Couverture des villages
             </h3>
             {(() => {
@@ -1989,8 +1766,8 @@ const AnalyticsDashboard = () => {
               ]
               return (
                 <>
-                  <div className="relative" style={{ height: 150 }}>
-                    <ResponsiveContainer width="100%" height={150}>
+                  <div className="relative" style={{ height: 132 }}>
+                    <ResponsiveContainer width="100%" height={132}>
                       <PieChart>
                         <Pie
                           data={gaugeData}
@@ -1998,8 +1775,8 @@ const AnalyticsDashboard = () => {
                           cy="85%"
                           startAngle={180}
                           endAngle={0}
-                          innerRadius={55}
-                          outerRadius={80}
+                          innerRadius={48}
+                          outerRadius={68}
                           paddingAngle={0}
                           dataKey="value"
                           isAnimationActive={true}
@@ -2012,7 +1789,7 @@ const AnalyticsDashboard = () => {
                     </ResponsiveContainer>
                     <div className="absolute inset-0 flex items-end justify-center pb-4 pointer-events-none">
                       <div className="text-center">
-                        <p className="text-3xl font-bold text-sky-600">{pct}%</p>
+                        <p className="text-2xl font-bold text-sky-600">{pct}%</p>
                         <p className="text-xs text-gray-400 mt-0.5">villages engagés</p>
                       </div>
                     </div>
@@ -2050,12 +1827,12 @@ const AnalyticsDashboard = () => {
         {/* ── Charts Row ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 relative z-10">
           {/* Comparison Bar Chart */}
-          <div className="lg:col-span-2 bg-white/80 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2 drop-shadow">
-              <BarChart3 size={20} className="text-primary-600" />
+          <div className="lg:col-span-2 bg-white/75 backdrop-blur-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-white/60">
+            <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2 drop-shadow">
+              <BarChart3 size={18} className="text-primary-600" />
               {t('dashboard.statusComparison') || 'Status Comparison'}
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={260}>
               <BarChart data={comparisonData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="name" tick={{ fill: '#6b7280' }} />
@@ -2076,20 +1853,20 @@ const AnalyticsDashboard = () => {
           </div>
 
           {/* People Groups Status Pie Chart */}
-          <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-6 drop-shadow">
+          <div className="bg-white/75 backdrop-blur-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-white/60">
+            <h3 className="text-base font-semibold text-gray-800 mb-4 drop-shadow">
               {t('dashboard.peopleGroupStatus') || 'People Group Status'}
             </h3>
             {engagementStatusData.length > 0 ? (
               <>
-                <ResponsiveContainer width="100%" height={200}>
+                <ResponsiveContainer width="100%" height={180}>
                   <PieChart>
                     <Pie
                       data={engagementStatusData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={40}
-                      outerRadius={80}
+                        innerRadius={34}
+                        outerRadius={68}
                       paddingAngle={5}
                       dataKey="count"
                     >
@@ -2110,9 +1887,9 @@ const AnalyticsDashboard = () => {
                     />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="mt-6 space-y-3">
+                <div className="mt-4 space-y-2">
                   {engagementStatusData.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div key={index} className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-gray-50/80 transition-colors">
                       <div className="flex items-center gap-3">
                         <div
                           className="w-4 h-4 rounded-full shadow-sm"
